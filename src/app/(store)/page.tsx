@@ -48,6 +48,7 @@ export default async function HomePage() {
               src="/placeholders/swim-shorts.svg"
               alt="Swim Shorts"
               fill
+              loading="eager"
               className="object-cover opacity-70 transition group-hover:opacity-90"
             />
             <span className="relative text-lg font-semibold text-white">
