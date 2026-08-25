@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
-import { resend } from "@/lib/resend";
+import { getResend } from "@/lib/resend";
 import { renderOrderConfirmationEmail } from "@/lib/orderEmail";
 
 export async function POST(request: Request) {
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(
+    event = getStripe().webhooks.constructEvent(
       body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET ?? ""
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ received: true });
     }
 
-    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+    const lineItems = await getStripe().checkout.sessions.listLineItems(session.id, {
       expand: ["data.price.product"],
       limit: 100,
     });
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
 
     if (order.customerEmail && process.env.RESEND_API_KEY) {
       try {
-        await resend.emails.send({
+        await getResend().emails.send({
           from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
           to: order.customerEmail,
           subject: "Your Orca Australia order is confirmed",
