@@ -1,0 +1,85 @@
+// Prisma schema for the Orca Australia store.
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ProductCategory {
+  SHORTS
+  BOXER_BRIEF
+}
+
+enum Size {
+  S
+  M
+  L
+  XL
+  XXL
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FULFILLED
+  CANCELLED
+}
+
+model Product {
+  id            String          @id @default(cuid())
+  slug          String          @unique
+  name          String
+  description   String
+  category      ProductCategory
+  coverImageUrl String?
+  images        String[]        @default([])
+  active        Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  variants      Variant[]
+}
+
+model Variant {
+  id         String      @id @default(cuid())
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String
+  sku        String      @unique
+  size       Size
+  priceCents Int
+  stock      Int         @default(0)
+  active     Boolean     @default(true)
+  orderItems OrderItem[]
+
+  @@unique([productId, size])
+}
+
+model Order {
+  id                String      @id @default(cuid())
+  stripeSessionId   String      @unique
+  customerEmail     String
+  customerName      String?
+  shippingAddress   Json?
+  status            OrderStatus @default(PENDING)
+  totalCents        Int
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  items             OrderItem[]
+}
+
+model OrderItem {
+  id             String   @id @default(cuid())
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId        String
+  variant        Variant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  variantId      String?
+  productName    String
+  size           String
+  sku            String
+  quantity       Int
+  unitPriceCents Int
+}

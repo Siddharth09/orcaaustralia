@@ -1,0 +1,11 @@
+import type { ProductCategory, Size } from "@prisma/client";
+
+export const SIZE_ORDER: Size[] = ["S", "M", "L", "XL", "XXL"];
+
+export const CATEGORY_LABELS: Record<ProductCategory, string> = {
+  SHORTS: "Swim Shorts",
+  BOXER_BRIEF: "Tencel Modal Boxer Briefs",
+};
+
+export const FLAT_SHIPPING_CENTS = 900;
+export const FREE_SHIPPING_THRESHOLD_CENTS = 15000;
