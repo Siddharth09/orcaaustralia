@@ -29,8 +29,8 @@ export default async function HomePage() {
             Built for the water
           </h1>
           <p className="mx-auto mt-4 max-w-md text-white/80">
-            Men&apos;s swim shorts and Tencel modal boxer briefs, made for
-            Australian summers.
+            Men&apos;s swim shorts, gym shorts, and Tencel modal boxer briefs,
+            made for Australian summers.
           </p>
           <Link
             href="/products"
@@ -42,13 +42,13 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-3">
           <Link
             href="/products?category=SHORTS"
             className="group relative flex h-64 items-end overflow-hidden rounded-lg bg-navy p-6"
           >
             <Image
-              src={`${BLOB}/blue-shorts-4-model.jpg`}
+              src={`${BLOB}/highseas-shorts-4-model.jpg`}
               alt="Swim Shorts"
               fill
               loading="eager"
@@ -57,6 +57,21 @@ export default async function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-navy-dark/10 to-transparent" />
             <span className="relative text-lg font-semibold text-white">
               Swim Shorts
+            </span>
+          </Link>
+          <Link
+            href="/products?category=GYM_SHORTS"
+            className="group relative flex h-64 items-end overflow-hidden rounded-lg bg-navy p-6"
+          >
+            <Image
+              src={`${BLOB}/blue-shorts-4-model.jpg`}
+              alt="Gym Shorts"
+              fill
+              className="object-cover opacity-90 transition duration-300 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-navy-dark/10 to-transparent" />
+            <span className="relative text-lg font-semibold text-white">
+              Gym Shorts
             </span>
           </Link>
           <Link

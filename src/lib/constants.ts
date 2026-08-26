@@ -4,6 +4,7 @@ export const SIZE_ORDER: Size[] = ["S", "M", "L", "XL", "XXL"];
 
 export const CATEGORY_LABELS: Record<ProductCategory, string> = {
   SHORTS: "Swim Shorts",
+  GYM_SHORTS: "Gym Shorts",
   BOXER_BRIEF: "Tencel Modal Boxer Briefs",
 };
 

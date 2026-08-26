@@ -17,12 +17,15 @@ export function SiteHeader() {
           <Image src="/orca-icon-navy.png" alt="" width={28} height={28} />
           ORCA <span className="font-light">AUSTRALIA</span>
         </Link>
-        <nav className="hidden gap-8 text-sm font-medium text-navy/80 sm:flex">
+        <nav className="hidden gap-6 text-sm font-medium text-navy/80 lg:flex">
           <Link href="/products" className="hover:text-navy">
             All Products
           </Link>
           <Link href="/products?category=SHORTS" className="hover:text-navy">
             Swim Shorts
+          </Link>
+          <Link href="/products?category=GYM_SHORTS" className="hover:text-navy">
+            Gym Shorts
           </Link>
           <Link href="/products?category=BOXER_BRIEF" className="hover:text-navy">
             Boxer Briefs

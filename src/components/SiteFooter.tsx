@@ -12,8 +12,9 @@ export function SiteFooter() {
               <p className="font-semibold text-navy">ORCA AUSTRALIA</p>
             </div>
             <p className="mt-2 max-w-md">
-              Men&apos;s swim shorts and Tencel modal boxer briefs, designed for
-              Australian summers. Shipping across Australia.
+              Men&apos;s swim shorts, gym shorts, and Tencel modal boxer
+              briefs, designed for Australian summers. Shipping across
+              Australia.
             </p>
           </div>
 

@@ -12,6 +12,7 @@ datasource db {
 
 enum ProductCategory {
   SHORTS
+  GYM_SHORTS
   BOXER_BRIEF
 }
 

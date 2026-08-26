@@ -7,11 +7,11 @@ const BASE = "https://tyypnlpqlv0ylyem.public.blob.vercel-storage.com/products";
 
 const products = [
   {
-    slug: "black-swim-shorts",
-    name: "Black Swim Shorts",
-    category: "SHORTS" as const,
+    slug: "black-gym-shorts",
+    name: "Black Gym Shorts",
+    category: "GYM_SHORTS" as const,
     description:
-      "Our classic swim short in matte black. Quick-dry fabric, a secure zip pocket for your keys, and just enough stretch to dive in without a second thought.",
+      "Our go-to gym short in matte black. Lightweight, breathable fabric with a secure zip pocket for your keys, and just enough stretch to move the way you train.",
     priceCents: 6900,
     skuCode: "BLKSH",
     images: [
@@ -22,11 +22,11 @@ const products = [
     ],
   },
   {
-    slug: "blue-swim-shorts",
-    name: "Blue Swim Shorts",
-    category: "SHORTS" as const,
+    slug: "blue-gym-shorts",
+    name: "Blue Gym Shorts",
+    category: "GYM_SHORTS" as const,
     description:
-      "A washed denim-blue that goes from beach to bar without missing a beat. Quick-dry fabric with a secure zip pocket and just enough stretch to move.",
+      "A washed denim-blue gym short that goes from training to errands without missing a beat. Breathable fabric, a secure zip pocket, and stretch built to move.",
     priceCents: 6900,
     skuCode: "BLUSH",
     images: [
@@ -38,11 +38,11 @@ const products = [
     ],
   },
   {
-    slug: "green-swim-shorts",
-    name: "Green Swim Shorts",
-    category: "SHORTS" as const,
+    slug: "green-gym-shorts",
+    name: "Green Gym Shorts",
+    category: "GYM_SHORTS" as const,
     description:
-      "Deep forest green for the days you want the beach to feel like an adventure. Quick-dry fabric with a secure zip pocket.",
+      "Deep forest green for training days that need a bit of edge. Breathable fabric with a secure zip pocket and stretch that keeps up with you.",
     priceCents: 6900,
     skuCode: "GRNSH",
     images: [
@@ -92,7 +92,7 @@ const products = [
     category: "BOXER_BRIEF" as const,
     badge: "Lock-In Pouch",
     description:
-      "Our signature boxer brief with Lock-In Technology — a built-in inner pocket that keeps everything secure and in place, no adjusting required. Fully lined in ultra-soft Tencel modal.",
+      "Our signature boxer brief with Lock-In Technology — a built-in inner pocket that keeps everything secure and in place, no adjusting required. Cut from ultra-luxury Tencel modal for an all-day second-skin feel.",
     priceCents: 3900,
     skuCode: "BBRFL",
     images: [
@@ -109,7 +109,7 @@ const products = [
     name: "Boxer Briefs — Classic Lining",
     category: "BOXER_BRIEF" as const,
     description:
-      "The same ultra-soft Tencel modal boxer brief, in our classic plain lining. Breathable, all-day comfort, zero fuss.",
+      "The same ultra-luxury Tencel modal boxer brief, in our classic plain lining. Breathable, all-day comfort, zero fuss.",
     priceCents: 3900,
     skuCode: "BBRFC",
     images: [

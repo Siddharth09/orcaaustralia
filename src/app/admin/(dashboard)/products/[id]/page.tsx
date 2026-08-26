@@ -9,6 +9,13 @@ import {
   updateVariant,
   deleteVariant,
 } from "../actions";
+import type { ProductCategory } from "@prisma/client";
+
+const SKU_PREFIX: Record<ProductCategory, string> = {
+  SHORTS: "SH",
+  GYM_SHORTS: "GYM",
+  BOXER_BRIEF: "BB",
+};
 
 export default async function EditProductPage({
   params,
@@ -67,6 +74,7 @@ export default async function EditProductPage({
             className="mt-1 w-full rounded border border-black/20 px-3 py-2 text-sm"
           >
             <option value="SHORTS">Swim Shorts</option>
+            <option value="GYM_SHORTS">Gym Shorts</option>
             <option value="BOXER_BRIEF">Tencel Modal Boxer Briefs</option>
           </select>
         </div>
@@ -211,7 +219,7 @@ export default async function EditProductPage({
                 id="sku"
                 name="sku"
                 required
-                placeholder={`ORCA-${product.category === "SHORTS" ? "SH" : "BB"}-...`}
+                placeholder={`ORCA-${SKU_PREFIX[product.category]}-...`}
                 className="mt-1 rounded border border-black/20 px-2 py-1.5 text-sm"
               />
             </div>

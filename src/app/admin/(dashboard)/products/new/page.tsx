@@ -28,6 +28,7 @@ export default function NewProductPage() {
             className="mt-1 w-full rounded border border-black/20 px-3 py-2 text-sm"
           >
             <option value="SHORTS">Swim Shorts</option>
+            <option value="GYM_SHORTS">Gym Shorts</option>
             <option value="BOXER_BRIEF">Tencel Modal Boxer Briefs</option>
           </select>
         </div>

@@ -21,11 +21,11 @@ export const metadata: Metadata = {
     template: "%s | Orca Australia",
   },
   description:
-    "Men's swim shorts and Tencel modal boxer briefs, designed for Australian summers.",
+    "Men's swim shorts, gym shorts, and Tencel modal boxer briefs, designed for Australian summers.",
   openGraph: {
     title: "Orca Australia",
     description:
-      "Men's swim shorts and Tencel modal boxer briefs, designed for Australian summers.",
+      "Men's swim shorts, gym shorts, and Tencel modal boxer briefs, designed for Australian summers.",
     siteName: "Orca Australia",
     images: ["/orca-icon.png"],
   },

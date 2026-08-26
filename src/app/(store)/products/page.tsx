@@ -1,9 +1,12 @@
 import { ProductCard } from "@/components/ProductCard";
 import { getActiveProducts } from "@/lib/products";
 import { CATEGORY_LABELS } from "@/lib/constants";
+import { TencelModalExplainer } from "@/components/TencelModalExplainer";
 import type { ProductCategory } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
+
+const VALID_CATEGORIES: ProductCategory[] = ["SHORTS", "GYM_SHORTS", "BOXER_BRIEF"];
 
 export default async function ProductsPage({
   searchParams,
@@ -11,10 +14,9 @@ export default async function ProductsPage({
   searchParams: Promise<{ category?: string }>;
 }) {
   const { category } = await searchParams;
-  const validCategory =
-    category === "SHORTS" || category === "BOXER_BRIEF"
-      ? (category as ProductCategory)
-      : undefined;
+  const validCategory = VALID_CATEGORIES.includes(category as ProductCategory)
+    ? (category as ProductCategory)
+    : undefined;
 
   const products = await getActiveProducts(validCategory);
 
@@ -35,6 +37,8 @@ export default async function ProductsPage({
           ))}
         </div>
       )}
+
+      {validCategory === "BOXER_BRIEF" && <TencelModalExplainer />}
     </div>
   );
 }

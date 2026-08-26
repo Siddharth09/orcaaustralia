@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 export const metadata = {
-  title: "Orca Australia — Admin",
+  title: "Admin",
 };
 
 export default function AdminRootLayout({ children }: { children: ReactNode }) {
