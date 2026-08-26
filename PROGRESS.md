@@ -1,33 +1,38 @@
 # Orca Australia — Setup Progress
 
-_Last updated: 2026-08-25. I'll keep this file up to date as we go — check here any time for where things stand._
+_Last updated: 2026-08-26. I'll keep this file up to date as we go — check here any time for where things stand._
 
 ## ✅ Done
 
-- **App built**: storefront (browse, sizes/SKUs, cart, Stripe Checkout), admin dashboard (orders, product/variant CRUD, photo upload), Stripe webhook + Resend confirmation email. Fully tested locally.
-- **GitHub repo**: pushed to https://github.com/Siddharth09/orcaaustralia (branch `master`).
-- **Database (Neon)**: project `orca-australia` in Sydney (`ap-southeast-2`), tables migrated, seeded with 2 starter products (Classic Swim Shorts, Tencel Modal Boxer Brief).
-- **Vercel account**: connected via CLI (signed in as `mehtasiddharth09-9311`).
-- **Vercel project**: created (`astryks/orca-australia`).
-- **Vercel Blob storage**: created (`orca-australia-photos`, public access) and linked to the project — product photo uploads work.
-- **Vercel environment variables set**: `DATABASE_URL`, `ADMIN_PASSWORD` (Waffle.09), `ADMIN_SESSION_SECRET`, `BLOB_READ_WRITE_TOKEN`.
-- **Fixed two Vercel-specific build bugs**: added a `postinstall` script so Prisma regenerates on Vercel's cached installs, and made the Stripe/Resend clients initialize lazily so a not-yet-set API key doesn't crash the whole build. Also added `.vercelignore` so local `.env` files never get uploaded as deployment source.
-- **🚀 Site is LIVE**: https://orca-australia.vercel.app — verified working: homepage/products load from the real database, admin login works, admin dashboard loads.
+- **App built**: storefront (browse, sizes/SKUs, cart, Stripe Checkout), admin dashboard (orders, product/variant CRUD, photo upload), Stripe webhook + Resend confirmation email.
+- **Real product catalog live**: 6 products from your real photos — Black/Blue/Green Swim Shorts, High Seas Print Swim Shorts, Polar Bear Print Swim Shorts, and Black Boxer Briefs — each with front/back/detail/model photos, S–XXL sizes, real prices ($69–$74 for shorts, $39 for briefs).
+- **Real branding**: your logo mark is now in the header, footer, and site favicon. Homepage hero uses your cover photo. Category tiles use real model photos.
+- **Footer updated**: support email (support@astryks.com) and "Orca Australia, part of the Astryks Group | astryks.com" added.
+- **GitHub repo**: https://github.com/Siddharth09/orcaaustralia (branch `master`), fully up to date.
+- **Database (Neon)**: project `orca-australia` in Sydney (`ap-southeast-2`).
+- **Vercel project**: `astryks/orca-australia`, with `DATABASE_URL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, `BLOB_READ_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL` all set.
+- **Vercel Blob storage**: holds all product photos.
+- **🚀 Site is LIVE**: https://orca-australia.vercel.app
+- **Domain added to Vercel project**: `orcaaustralia.com` and `www.orcaaustralia.com` — **DNS not pointed yet, see below.**
 
 ## ⏳ Pending — next steps in order
 
-1. **Stripe test keys** — from dashboard.stripe.com/apikeys (Test mode), send me the Secret key (`sk_test_...`) and Publishable key (`pk_test_...`) and I'll add them to Vercel and redeploy.
+1. **Point your domain's DNS at Vercel** — your domain's nameservers currently look like GoDaddy's. At your DNS provider, add these two records:
+   | Type | Host | Value |
+   | --- | --- | --- |
+   | A | `@` (or blank/root) | `76.76.21.21` |
+   | A | `www` | `76.76.21.21` |
 
-2. **Resend API key** — from resend.com/api-keys, send me the key (`re_...`). Also verify `orcaaustralia.com` as a sending domain in Resend (Domains → Add Domain) if not done yet — needed so order confirmation emails can send from `orders@orcaaustralia.com`.
+   Once added, DNS usually propagates within minutes to a few hours. I'll verify and redeploy once it's live — just let me know when you've added them (or if you'd like exact click-by-click steps for your specific registrar).
 
-3. **Connect GitHub to Vercel for auto-deploy** (optional convenience) — currently deploys are manual (`vercel --prod`) because your Vercel account doesn't have GitHub connected as a login method yet. To fix: in the Vercel dashboard → Account Settings → Login Connections, connect GitHub. Then I can link the repo so every `git push` auto-deploys. Not required to keep working — just a convenience.
+2. **Stripe test keys** — from dashboard.stripe.com/apikeys (Test mode): Secret key (`sk_test_...`) and Publishable key (`pk_test_...`).
 
-4. **Connect the domain** — add `orcaaustralia.com` to the Vercel project and update DNS at wherever the domain is registered (I'll give exact records once we're at this step).
+3. **Resend API key** — from resend.com/api-keys (`re_...`), plus confirm `orcaaustralia.com` is verified as a sending domain there.
 
-5. **Stripe webhook** — add a production webhook endpoint in Stripe pointing at the live domain (`/api/webhooks/stripe`), then add its signing secret as `STRIPE_WEBHOOK_SECRET` and redeploy.
+4. **Stripe webhook** — once the domain is live, add a webhook endpoint in Stripe pointing at `https://orcaaustralia.com/api/webhooks/stripe`, then add its signing secret as `STRIPE_WEBHOOK_SECRET`.
 
-6. **Full smoke test** — place a real test-mode order on the live site, confirm it shows up in `/admin/orders` and the confirmation email arrives.
+5. **Full smoke test** — place a real test-mode order on the live site, confirm it shows up in `/admin/orders` and the confirmation email arrives.
 
-7. **Replace placeholder photos** — upload real product photos via `/admin/products` once you have them.
+6. **Connect GitHub to Vercel for auto-deploy** (optional convenience) — currently deploys are manual (`vercel --prod`). To enable auto-deploy on push: Vercel dashboard → Account Settings → Login Connections → connect GitHub, then I can link the repo.
 
-8. **Go live for real** — when ready to accept real payments, switch Stripe to Live mode (new live keys + live webhook), and set `NEXT_PUBLIC_SITE_URL` to the final domain.
+7. **Go live for real** — when ready to accept real payments, switch Stripe to Live mode (new live keys + live webhook).
