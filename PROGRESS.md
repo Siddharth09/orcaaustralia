@@ -5,7 +5,8 @@ _Last updated: 2026-08-26. I'll keep this file up to date as we go — check her
 ## ✅ Done
 
 - **App built**: storefront (browse, sizes/SKUs, cart, Stripe Checkout), admin dashboard (orders, product/variant CRUD, photo upload), Stripe webhook + Resend confirmation/shipping emails, guest order tracking, contact/support form.
-- **Real product catalog live — 7 products**: Black/Blue/Green Swim Shorts, High Seas Print Swim Shorts ("New"), Polar Bear Print Swim Shorts ("New"), Boxer Briefs — Lock-In Pouch ("Lock-In Pouch" badge, sewn-in inner pocket), and Boxer Briefs — Classic Lining. All with real front/back/detail/model photos, S–XXL sizes.
+- **Real product catalog live — 7 products across 3 categories**: **Swim Shorts** (High Seas Print, Polar Bear Print — both "New"), **Gym Shorts** (Black/Blue/Green), and **Tencel Modal Boxer Briefs** (Lock-In Pouch, Classic Lining). All with real front/back/detail/model photos, S–XXL sizes.
+- **"What's Tencel Modal?" section**: a fun, friendly explainer under the Boxer Briefs category page comparing Tencel Modal (made by Lenzing) to cotton, bamboo viscose, and nylon.
 - **Real branding**: logo mark in header/footer/favicon, homepage hero uses your cover photo, category tiles use real model photos, homepage trust strip (quick-dry, Tencel modal, Aussie-made, secure Stripe checkout).
 - **Guest order tracking** (`/track-order`): customers enter email + order number to see live/past order status and history — no account needed.
 - **Contact/support page** (`/contact`): on-site form emails support@astryks.com with reply-to set to the customer; linked from order tracking and the footer.
