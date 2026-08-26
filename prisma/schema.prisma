@@ -36,6 +36,7 @@ model Product {
   name          String
   description   String
   category      ProductCategory
+  badge         String?
   coverImageUrl String?
   images        String[]        @default([])
   active        Boolean         @default(true)

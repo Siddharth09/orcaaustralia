@@ -88,12 +88,13 @@ export async function POST(request: Request) {
 
     if (order.customerEmail && process.env.RESEND_API_KEY) {
       try {
-        await getResend().emails.send({
+        const { error } = await getResend().emails.send({
           from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
           to: order.customerEmail,
           subject: "Your Orca Australia order is confirmed",
           html: renderOrderConfirmationEmail(order),
         });
+        if (error) throw error;
       } catch (err) {
         // The order is already saved; don't fail the webhook (Stripe would
         // retry and, since the order now exists, never retry the email).

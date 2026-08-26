@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { formatCents } from "@/lib/money";
+import { getResend } from "@/lib/resend";
+import { renderShippingNotificationEmail } from "@/lib/orderEmail";
 import type { OrderStatus } from "@prisma/client";
 
 const STATUS_OPTIONS: OrderStatus[] = ["PENDING", "PAID", "FULFILLED", "CANCELLED"];
@@ -21,11 +23,28 @@ export default async function AdminOrderDetailPage({
 
   async function updateStatus(formData: FormData) {
     "use server";
-    const status = String(formData.get("status"));
-    await prisma.order.update({
+    const status = String(formData.get("status")) as OrderStatus;
+    const wasFulfilled = order!.status === "FULFILLED";
+
+    const updated = await prisma.order.update({
       where: { id },
-      data: { status: status as OrderStatus },
+      data: { status },
     });
+
+    if (status === "FULFILLED" && !wasFulfilled && updated.customerEmail) {
+      try {
+        const { error } = await getResend().emails.send({
+          from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
+          to: updated.customerEmail,
+          subject: "Your Orca Australia order has shipped",
+          html: renderShippingNotificationEmail(updated),
+        });
+        if (error) throw error;
+      } catch (err) {
+        console.error("Shipping notification email failed to send:", err);
+      }
+    }
+
     revalidatePath(`/admin/orders/${id}`);
     revalidatePath("/admin/orders");
   }

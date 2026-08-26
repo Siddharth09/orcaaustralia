@@ -8,6 +8,7 @@ export interface ProductCardData {
   slug: string;
   name: string;
   category: ProductCategory;
+  badge?: string | null;
   coverImageUrl: string | null;
   fromPriceCents: number;
 }
@@ -27,6 +28,11 @@ export function ProductCard({ product }: { product: ProductCardData }) {
             sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
             className="object-cover transition duration-300 group-hover:scale-105"
           />
+        )}
+        {product.badge && (
+          <span className="absolute left-2 top-2 rounded-full bg-accent px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-sm">
+            {product.badge}
+          </span>
         )}
       </div>
       <div className="p-4">

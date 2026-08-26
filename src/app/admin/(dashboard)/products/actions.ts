@@ -41,14 +41,16 @@ export async function updateProduct(id: string, formData: FormData) {
   const description = String(formData.get("description") ?? "").trim();
   const category = String(formData.get("category")) as ProductCategory;
   const active = formData.get("active") === "on";
+  const badge = String(formData.get("badge") ?? "").trim();
 
   await prisma.product.update({
     where: { id },
-    data: { name, description, category, active },
+    data: { name, description, category, active, badge: badge || null },
   });
 
   revalidatePath(`/admin/products/${id}`);
   revalidatePath("/admin/products");
+  revalidatePath("/");
 }
 
 export async function deleteProduct(id: string) {

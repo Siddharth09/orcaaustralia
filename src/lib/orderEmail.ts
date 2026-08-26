@@ -44,3 +44,19 @@ export function renderOrderConfirmationEmail(order: {
     <p style="color:#10203a;">— Orca Australia</p>
   </div>`;
 }
+
+export function renderShippingNotificationEmail(order: {
+  id: string;
+  customerName?: string | null;
+}) {
+  return `
+  <div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;padding:24px;">
+    <h1 style="color:#0f2438;font-size:20px;">Your order is on its way${order.customerName ? `, ${order.customerName}` : ""}!</h1>
+    <p style="color:#10203a;">Good news — your Orca Australia order <strong>#${order.id.slice(-8).toUpperCase()}</strong> has shipped.</p>
+    <p style="color:#10203a;margin-top:16px;">Questions about your delivery? Just reply to this email or reach us at
+      <a href="mailto:support@astryks.com" style="color:#0f2438;">support@astryks.com</a>.
+    </p>
+    <p style="color:#10203a;margin-top:24px;">Thanks for shopping with us.</p>
+    <p style="color:#10203a;">— Orca Australia</p>
+  </div>`;
+}

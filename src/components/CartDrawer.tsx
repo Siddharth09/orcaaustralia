@@ -68,6 +68,7 @@ export function CartDrawer() {
                       <input
                         type="number"
                         min={1}
+                        aria-label={`Quantity for ${item.productName}, size ${item.size}`}
                         value={item.quantity}
                         onChange={(e) =>
                           setQuantity(item.variantId, Number(e.target.value))

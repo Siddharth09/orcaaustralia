@@ -77,6 +77,21 @@ export default async function HomePage() {
         </div>
       </section>
 
+      <section className="border-y border-black/5 bg-sand">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-6 py-8 text-center sm:grid-cols-4">
+          {[
+            { label: "Quick-dry fabric" },
+            { label: "Ultra-soft Tencel modal" },
+            { label: "Designed for Aussie summers" },
+            { label: "Secure checkout via Stripe" },
+          ].map((item) => (
+            <div key={item.label} className="text-xs font-medium uppercase tracking-wide text-navy/60 sm:text-sm">
+              {item.label}
+            </div>
+          ))}
+        </div>
+      </section>
+
       {products.length > 0 && (
         <section className="mx-auto max-w-6xl px-6 pb-20">
           <h2 className="text-xl font-semibold text-navy">Featured</h2>

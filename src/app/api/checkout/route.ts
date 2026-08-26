@@ -79,6 +79,7 @@ export async function POST(request: Request) {
     session = await getStripe().checkout.sessions.create({
       mode: "payment",
       line_items: lineItems,
+      allow_promotion_codes: true,
       shipping_address_collection: { allowed_countries: ["AU"] },
       shipping_options: [
         {

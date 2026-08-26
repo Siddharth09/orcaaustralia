@@ -13,8 +13,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Orca Australia",
-  description: "Men's swim shorts and Tencel modal boxer briefs.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://orcaaustralia.com"
+  ),
+  title: {
+    default: "Orca Australia",
+    template: "%s | Orca Australia",
+  },
+  description:
+    "Men's swim shorts and Tencel modal boxer briefs, designed for Australian summers.",
+  openGraph: {
+    title: "Orca Australia",
+    description:
+      "Men's swim shorts and Tencel modal boxer briefs, designed for Australian summers.",
+    siteName: "Orca Australia",
+    images: ["/orca-icon.png"],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

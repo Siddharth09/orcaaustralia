@@ -56,6 +56,7 @@ const products = [
     slug: "high-seas-swim-shorts",
     name: "High Seas Print Swim Shorts",
     category: "SHORTS" as const,
+    badge: "New",
     description:
       "Whales, sailboats, and a flock of gulls — for the ones who'd rather be out on the water. Lightweight, quick-dry, and just the right amount of playful.",
     priceCents: 7400,
@@ -72,6 +73,7 @@ const products = [
     slug: "polar-bear-swim-shorts",
     name: "Polar Bear Print Swim Shorts",
     category: "SHORTS" as const,
+    badge: "New",
     description:
       "A snowy cabin and a family of polar bears — our most fun print yet, done up in lightweight, quick-dry swim fabric.",
     priceCents: 7400,
@@ -85,17 +87,35 @@ const products = [
     ],
   },
   {
-    slug: "black-boxer-briefs",
-    name: "Black Boxer Briefs",
+    slug: "boxer-briefs-lockin",
+    name: "Boxer Briefs — Lock-In Pouch",
     category: "BOXER_BRIEF" as const,
+    badge: "Lock-In Pouch",
     description:
-      "Ultra-soft Tencel modal boxer briefs that breathe better than anything else in your drawer. All-day comfort, zero fuss.",
+      "Our signature boxer brief with Lock-In Technology — a built-in inner pocket that keeps everything secure and in place, no adjusting required. Fully lined in ultra-soft Tencel modal.",
     priceCents: 3900,
-    skuCode: "BBRF",
+    skuCode: "BBRFL",
     images: [
       "briefs-1-front.jpg",
       "briefs-2-back.jpg",
       "briefs-3-detail.jpg",
+      "briefs-pocket-zoomed.jpg",
+      "briefs-4-model.jpg",
+      "briefs-5-model.jpg",
+    ],
+  },
+  {
+    slug: "boxer-briefs-classic",
+    name: "Boxer Briefs — Classic Lining",
+    category: "BOXER_BRIEF" as const,
+    description:
+      "The same ultra-soft Tencel modal boxer brief, in our classic plain lining. Breathable, all-day comfort, zero fuss.",
+    priceCents: 3900,
+    skuCode: "BBRFC",
+    images: [
+      "briefs-1-front.jpg",
+      "briefs-2-back.jpg",
+      "briefs-plain-detail.jpg",
       "briefs-4-model.jpg",
       "briefs-5-model.jpg",
     ],
@@ -112,6 +132,7 @@ async function main() {
         slug: p.slug,
         name: p.name,
         category: p.category,
+        badge: "badge" in p ? p.badge : undefined,
         description: p.description,
         coverImageUrl: images[0],
         images,

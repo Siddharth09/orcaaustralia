@@ -7,8 +7,11 @@ export default function NewProductPage() {
 
       <form action={createProduct} className="mt-6 space-y-4 rounded-lg border border-black/10 bg-white p-6">
         <div>
-          <label className="block text-sm font-medium text-navy">Name</label>
+          <label htmlFor="name" className="block text-sm font-medium text-navy">
+            Name
+          </label>
           <input
+            id="name"
             name="name"
             required
             className="mt-1 w-full rounded border border-black/20 px-3 py-2 text-sm"
@@ -16,8 +19,11 @@ export default function NewProductPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-navy">Category</label>
+          <label htmlFor="category" className="block text-sm font-medium text-navy">
+            Category
+          </label>
           <select
+            id="category"
             name="category"
             className="mt-1 w-full rounded border border-black/20 px-3 py-2 text-sm"
           >
@@ -27,8 +33,11 @@ export default function NewProductPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-navy">Description</label>
+          <label htmlFor="description" className="block text-sm font-medium text-navy">
+            Description
+          </label>
           <textarea
+            id="description"
             name="description"
             rows={4}
             className="mt-1 w-full rounded border border-black/20 px-3 py-2 text-sm"

@@ -45,8 +45,11 @@ export default async function EditProductPage({
       >
         <h2 className="text-sm font-semibold text-navy">Details</h2>
         <div>
-          <label className="block text-sm font-medium text-navy">Name</label>
+          <label htmlFor="name" className="block text-sm font-medium text-navy">
+            Name
+          </label>
           <input
+            id="name"
             name="name"
             defaultValue={product.name}
             required
@@ -54,8 +57,11 @@ export default async function EditProductPage({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-navy">Category</label>
+          <label htmlFor="category" className="block text-sm font-medium text-navy">
+            Category
+          </label>
           <select
+            id="category"
             name="category"
             defaultValue={product.category}
             className="mt-1 w-full rounded border border-black/20 px-3 py-2 text-sm"
@@ -65,11 +71,26 @@ export default async function EditProductPage({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-navy">Description</label>
+          <label htmlFor="description" className="block text-sm font-medium text-navy">
+            Description
+          </label>
           <textarea
+            id="description"
             name="description"
             rows={4}
             defaultValue={product.description}
+            className="mt-1 w-full rounded border border-black/20 px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label htmlFor="badge" className="block text-sm font-medium text-navy">
+            Badge <span className="text-navy/50">(optional, e.g. &quot;New&quot;)</span>
+          </label>
+          <input
+            id="badge"
+            name="badge"
+            defaultValue={product.badge ?? ""}
+            placeholder="New"
             className="mt-1 w-full rounded border border-black/20 px-3 py-2 text-sm"
           />
         </div>
@@ -167,8 +188,11 @@ export default async function EditProductPage({
             className="mt-6 flex flex-wrap items-end gap-3 border-t border-black/10 pt-4"
           >
             <div>
-              <label className="block text-xs font-medium text-navy">Size</label>
+              <label htmlFor="size" className="block text-xs font-medium text-navy">
+                Size
+              </label>
               <select
+                id="size"
                 name="size"
                 className="mt-1 rounded border border-black/20 px-2 py-1.5 text-sm"
               >
@@ -180,8 +204,11 @@ export default async function EditProductPage({
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-navy">SKU</label>
+              <label htmlFor="sku" className="block text-xs font-medium text-navy">
+                SKU
+              </label>
               <input
+                id="sku"
                 name="sku"
                 required
                 placeholder={`ORCA-${product.category === "SHORTS" ? "SH" : "BB"}-...`}
@@ -189,8 +216,11 @@ export default async function EditProductPage({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-navy">Price (AUD)</label>
+              <label htmlFor="price" className="block text-xs font-medium text-navy">
+                Price (AUD)
+              </label>
               <input
+                id="price"
                 type="number"
                 step="0.01"
                 name="price"
@@ -199,8 +229,11 @@ export default async function EditProductPage({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-navy">Stock</label>
+              <label htmlFor="stock" className="block text-xs font-medium text-navy">
+                Stock
+              </label>
               <input
+                id="stock"
                 type="number"
                 name="stock"
                 defaultValue={0}

@@ -16,6 +16,7 @@ export async function getActiveProducts(category?: ProductCategory) {
     slug: product.slug,
     name: product.name,
     category: product.category,
+    badge: product.badge,
     coverImageUrl: product.coverImageUrl,
     fromPriceCents: Math.min(
       ...product.variants.map((v) => v.priceCents),
