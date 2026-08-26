@@ -5,6 +5,8 @@ import { getActiveProducts } from "@/lib/products";
 
 export const dynamic = "force-dynamic";
 
+const BLOB = "https://tyypnlpqlv0ylyem.public.blob.vercel-storage.com/products";
+
 export default async function HomePage() {
   const products = await getActiveProducts();
 
@@ -12,12 +14,13 @@ export default async function HomePage() {
     <div>
       <section className="relative flex h-[70vh] min-h-[480px] items-center justify-center overflow-hidden">
         <Image
-          src="/placeholders/hero.svg"
+          src={`${BLOB}/cover.jpg`}
           alt="Orca Australia"
           fill
           priority
           className="object-cover"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-navy-dark/30 to-navy-dark/50" />
         <div className="relative z-10 text-center text-white">
           <p className="text-sm uppercase tracking-[0.3em] text-white/80">
             New Season
@@ -45,12 +48,13 @@ export default async function HomePage() {
             className="group relative flex h-64 items-end overflow-hidden rounded-lg bg-navy p-6"
           >
             <Image
-              src="/placeholders/swim-shorts.svg"
+              src={`${BLOB}/blue-shorts-4-model.jpg`}
               alt="Swim Shorts"
               fill
               loading="eager"
-              className="object-cover opacity-70 transition group-hover:opacity-90"
+              className="object-cover opacity-90 transition duration-300 group-hover:scale-105"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-navy-dark/10 to-transparent" />
             <span className="relative text-lg font-semibold text-white">
               Swim Shorts
             </span>
@@ -60,11 +64,12 @@ export default async function HomePage() {
             className="group relative flex h-64 items-end overflow-hidden rounded-lg bg-navy p-6"
           >
             <Image
-              src="/placeholders/boxer-briefs.svg"
+              src={`${BLOB}/briefs-4-model.jpg`}
               alt="Tencel Modal Boxer Briefs"
               fill
-              className="object-cover opacity-70 transition group-hover:opacity-90"
+              className="object-cover opacity-90 transition duration-300 group-hover:scale-105"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-navy-dark/10 to-transparent" />
             <span className="relative text-lg font-semibold text-white">
               Tencel Modal Boxer Briefs
             </span>

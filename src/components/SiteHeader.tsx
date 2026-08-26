@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 
@@ -9,7 +10,11 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-black/10 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-xl font-semibold tracking-tight text-navy">
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-xl font-semibold tracking-tight text-navy"
+        >
+          <Image src="/orca-icon-navy.png" alt="" width={28} height={28} />
           ORCA <span className="font-light">AUSTRALIA</span>
         </Link>
         <nav className="hidden gap-8 text-sm font-medium text-navy/80 sm:flex">
