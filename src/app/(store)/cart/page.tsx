@@ -62,6 +62,7 @@ export default function CartPage() {
                 <input
                   type="number"
                   min={1}
+                  max={Math.max(item.stock, 1)}
                   aria-label={`Quantity for ${item.productName}, size ${item.size}`}
                   value={item.quantity}
                   onChange={(e) =>

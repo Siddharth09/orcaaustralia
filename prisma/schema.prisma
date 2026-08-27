@@ -96,6 +96,16 @@ model OrderItem {
   refundRequests RefundRequest[]
 }
 
+model MagicLinkToken {
+  jti    String   @id
+  usedAt DateTime @default(now())
+}
+
+model MagicLinkRequest {
+  email         String   @id
+  lastRequestAt DateTime @default(now())
+}
+
 model RefundRequest {
   id            String       @id @default(cuid())
   order         Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { getStripe } from "@/lib/stripe";
 import { getResend } from "@/lib/resend";
+import { requireAdmin } from "@/lib/session";
 import { renderRefundApprovedEmail, renderRefundDeniedEmail } from "@/lib/orderEmail";
 
 export interface RefundActionState {
@@ -15,6 +16,8 @@ export async function approveRefund(
   _prevState: RefundActionState | null,
   _formData: FormData
 ): Promise<RefundActionState> {
+  await requireAdmin();
+
   const refundRequest = await prisma.refundRequest.findUnique({
     where: { id: refundRequestId },
     include: { order: true, orderItem: true },
@@ -26,6 +29,14 @@ export async function approveRefund(
     return { error: "This order has no payment on file to refund against." };
   }
 
+  // Claim the request atomically before calling Stripe, so two concurrent
+  // approvals (double-click, two admin tabs) can't both trigger a refund.
+  const claimed = await prisma.refundRequest.updateMany({
+    where: { id: refundRequestId, status: "REQUESTED" },
+    data: { status: "APPROVED" },
+  });
+  if (claimed.count === 0) return {};
+
   let stripeRefundId: string;
   try {
     const refund = await getStripe().refunds.create({
@@ -35,6 +46,11 @@ export async function approveRefund(
     stripeRefundId = refund.id;
   } catch (err) {
     console.error("Stripe refund failed:", err);
+    // Release the claim so the admin can retry.
+    await prisma.refundRequest.update({
+      where: { id: refundRequestId },
+      data: { status: "REQUESTED" },
+    });
     return {
       error:
         "Stripe couldn't process this refund. Check the payment details and try again, or contact Stripe support.",
@@ -43,12 +59,12 @@ export async function approveRefund(
 
   await prisma.refundRequest.update({
     where: { id: refundRequestId },
-    data: { status: "APPROVED", stripeRefundId },
+    data: { stripeRefundId },
   });
 
   if (refundRequest.order.customerEmail) {
     try {
-      await getResend().emails.send({
+      const { error } = await getResend().emails.send({
         from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
         to: refundRequest.order.customerEmail,
         subject: "Your refund has been processed",
@@ -58,6 +74,7 @@ export async function approveRefund(
           amountCents: refundRequest.amountCents,
         }),
       });
+      if (error) throw error;
     } catch (err) {
       console.error("Refund approval email failed to send:", err);
     }
@@ -73,6 +90,8 @@ export async function denyRefund(
   _prevState: RefundActionState | null,
   formData: FormData
 ): Promise<RefundActionState> {
+  await requireAdmin();
+
   const adminNote = String(formData.get("adminNote") ?? "").trim();
 
   const refundRequest = await prisma.refundRequest.findUnique({
@@ -81,16 +100,16 @@ export async function denyRefund(
   });
 
   if (!refundRequest) return { error: "Refund request not found." };
-  if (refundRequest.status !== "REQUESTED") return {};
 
-  await prisma.refundRequest.update({
-    where: { id: refundRequestId },
+  const claimed = await prisma.refundRequest.updateMany({
+    where: { id: refundRequestId, status: "REQUESTED" },
     data: { status: "DENIED", adminNote: adminNote || null },
   });
+  if (claimed.count === 0) return {};
 
   if (refundRequest.order.customerEmail) {
     try {
-      await getResend().emails.send({
+      const { error } = await getResend().emails.send({
         from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
         to: refundRequest.order.customerEmail,
         subject: "About your refund request",
@@ -100,6 +119,7 @@ export async function denyRefund(
           adminNote: adminNote || null,
         }),
       });
+      if (error) throw error;
     } catch (err) {
       console.error("Refund denial email failed to send:", err);
     }

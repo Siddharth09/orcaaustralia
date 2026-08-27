@@ -15,15 +15,22 @@ export default async function AdminOrdersPage({
     ? (status as OrderStatus)
     : undefined;
 
+  const ORDER_LIMIT = 200;
   const orders = await prisma.order.findMany({
     where: validStatus ? { status: validStatus } : undefined,
     orderBy: { createdAt: "desc" },
     include: { items: true },
+    take: ORDER_LIMIT,
   });
 
   return (
     <div>
       <h1 className="text-2xl font-semibold text-navy">Orders</h1>
+      {orders.length === ORDER_LIMIT && (
+        <p className="mt-2 text-xs text-navy/50">
+          Showing the most recent {ORDER_LIMIT} orders. Filter by status to narrow results.
+        </p>
+      )}
 
       <div className="mt-4 flex gap-2 text-sm">
         <Link

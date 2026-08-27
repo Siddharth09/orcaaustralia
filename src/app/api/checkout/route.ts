@@ -22,7 +22,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }
 
-  const variantIds = parsed.data.items.map((i) => i.variantId);
+  // Merge duplicate line items for the same variant (e.g. a crafted request
+  // with two entries for the same SKU) so they're validated as one quantity.
+  const mergedItems = Array.from(
+    parsed.data.items
+      .reduce((map, item) => {
+        map.set(item.variantId, (map.get(item.variantId) ?? 0) + item.quantity);
+        return map;
+      }, new Map<string, number>())
+      .entries()
+  ).map(([variantId, quantity]) => ({ variantId, quantity }));
+
+  const variantIds = mergedItems.map((i) => i.variantId);
   const variants = await prisma.variant.findMany({
     where: { id: { in: variantIds }, active: true },
     include: { product: true },
@@ -36,7 +47,7 @@ export async function POST(request: Request) {
   }
 
   let subtotalCents = 0;
-  for (const item of parsed.data.items) {
+  for (const item of mergedItems) {
     const variant = variants.find((v) => v.id === item.variantId)!;
     if (variant.stock < item.quantity) {
       return NextResponse.json(
@@ -50,7 +61,7 @@ export async function POST(request: Request) {
   const shippingCents =
     subtotalCents >= FREE_SHIPPING_THRESHOLD_CENTS ? 0 : FLAT_SHIPPING_CENTS;
 
-  const lineItems = parsed.data.items.map((item) => {
+  const lineItems = mergedItems.map((item) => {
     const variant = variants.find((v) => v.id === item.variantId)!;
     return {
       quantity: item.quantity,

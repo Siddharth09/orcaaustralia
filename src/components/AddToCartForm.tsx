@@ -32,6 +32,17 @@ export function AddToCartForm({
   const selected = variants.find((v) => v.id === selectedId);
   const outOfStock = !selected || selected.stock <= 0;
 
+  function selectVariant(variantId: string) {
+    setSelectedId(variantId);
+    setQuantity(1);
+  }
+
+  function updateQuantity(rawValue: number) {
+    if (!Number.isFinite(rawValue)) return;
+    const ceiling = selected ? Math.max(1, selected.stock) : 999;
+    setQuantity(Math.min(ceiling, Math.max(1, Math.round(rawValue))));
+  }
+
   return (
     <div>
       <p className="text-2xl font-medium text-navy">
@@ -44,7 +55,7 @@ export function AddToCartForm({
           {variants.map((variant) => (
             <button
               key={variant.id}
-              onClick={() => setSelectedId(variant.id)}
+              onClick={() => selectVariant(variant.id)}
               disabled={variant.stock <= 0}
               className={`rounded border px-4 py-2 text-sm font-medium transition ${
                 selectedId === variant.id
@@ -66,8 +77,9 @@ export function AddToCartForm({
           id="quantity"
           type="number"
           min={1}
+          max={selected ? Math.max(1, selected.stock) : undefined}
           value={quantity}
-          onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+          onChange={(e) => updateQuantity(Number(e.target.value))}
           className="w-16 rounded border border-black/20 px-2 py-1 text-sm"
         />
       </div>
@@ -85,6 +97,7 @@ export function AddToCartForm({
             unitPriceCents: selected.priceCents,
             quantity,
             image,
+            stock: selected.stock,
           });
           openCart();
         }}

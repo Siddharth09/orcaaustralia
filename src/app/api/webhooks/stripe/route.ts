@@ -56,41 +56,61 @@ export async function POST(request: Request) {
         ? session.payment_intent
         : (session.payment_intent?.id ?? null);
 
-    const order = await prisma.order.create({
-      data: {
-        stripeSessionId: session.id,
-        paymentIntentId,
-        customerEmail: session.customer_details?.email ?? "",
-        customerName: session.customer_details?.name ?? undefined,
-        shippingAddress: session.collected_information?.shipping_details
-          ? JSON.parse(JSON.stringify(session.collected_information.shipping_details))
-          : undefined,
-        totalCents: session.amount_total ?? 0,
-        status: "PAID",
-        items: {
-          create: items.map((item) => ({
-            variantId: item.variantId || undefined,
-            productName: item.productName,
-            size: item.size,
-            sku: item.sku,
-            quantity: item.quantity,
-            unitPriceCents: item.unitPriceCents,
-          })),
+    let order;
+    try {
+      order = await prisma.order.create({
+        data: {
+          stripeSessionId: session.id,
+          paymentIntentId,
+          customerEmail: session.customer_details?.email ?? "",
+          customerName: session.customer_details?.name ?? undefined,
+          shippingAddress: session.collected_information?.shipping_details
+            ? JSON.parse(JSON.stringify(session.collected_information.shipping_details))
+            : undefined,
+          totalCents: session.amount_total ?? 0,
+          status: "PAID",
+          items: {
+            create: items.map((item) => ({
+              variantId: item.variantId || undefined,
+              productName: item.productName,
+              size: item.size,
+              sku: item.sku,
+              quantity: item.quantity,
+              unitPriceCents: item.unitPriceCents,
+            })),
+          },
         },
-      },
-      include: { items: true },
-    });
+        include: { items: true },
+      });
+    } catch (err) {
+      // Unique constraint on stripeSessionId means a concurrent delivery of
+      // this same event already created the order — treat as success.
+      if (
+        err &&
+        typeof err === "object" &&
+        "code" in err &&
+        (err as { code?: string }).code === "P2002"
+      ) {
+        return NextResponse.json({ received: true });
+      }
+      throw err;
+    }
 
-    await Promise.all(
+    const decrementResults = await Promise.allSettled(
       items
         .filter((item) => item.variantId)
         .map((item) =>
-          prisma.variant.update({
-            where: { id: item.variantId! },
-            data: { stock: { decrement: item.quantity } },
-          })
+          prisma.$executeRaw`UPDATE "Variant" SET stock = GREATEST(stock - ${item.quantity}, 0) WHERE id = ${item.variantId}`
         )
     );
+    decrementResults.forEach((result, i) => {
+      if (result.status === "rejected") {
+        console.error(
+          `Stock decrement failed for variant ${items.filter((it) => it.variantId)[i]?.variantId}:`,
+          result.reason
+        );
+      }
+    });
 
     if (order.customerEmail && process.env.RESEND_API_KEY) {
       try {

@@ -18,6 +18,7 @@ export interface CartItem {
   unitPriceCents: number;
   quantity: number;
   image: string | null;
+  stock: number;
 }
 
 interface CartContextValue {
@@ -47,8 +48,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // SSR), not a reactive sync — safe to set state directly here.
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (raw) setItems(JSON.parse(raw));
+      if (raw) {
+        const parsed = JSON.parse(raw) as CartItem[];
+        // Carts saved before `stock` was tracked won't have it — treat as
+        // unlimited rather than breaking the quantity input's max/clamp.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setItems(
+          parsed.map((i) => ({
+            ...i,
+            stock: typeof i.stock === "number" ? i.stock : Infinity,
+          }))
+        );
+      }
     } catch {
       // ignore malformed local storage
     }
@@ -64,9 +75,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => {
       const existing = prev.find((i) => i.variantId === item.variantId);
       if (existing) {
+        const ceiling = Math.max(item.stock, 1);
         return prev.map((i) =>
           i.variantId === item.variantId
-            ? { ...i, quantity: i.quantity + item.quantity }
+            ? {
+                // Refresh everything from the item being added — it reflects
+                // the current product page, while `i` may be stale data from
+                // a previous visit (renamed product, price change, etc.).
+                ...item,
+                quantity: Math.min(i.quantity + item.quantity, ceiling),
+              }
             : i
         );
       }
@@ -80,12 +98,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const setQuantity = (variantId: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeItem(variantId);
-      return;
-    }
+    // Ignore invalid input (e.g. a momentarily empty/non-numeric field while
+    // the user is typing a new value) rather than deleting the line item.
+    if (!Number.isFinite(quantity)) return;
     setItems((prev) =>
-      prev.map((i) => (i.variantId === variantId ? { ...i, quantity } : i))
+      prev.map((i) =>
+        i.variantId === variantId
+          ? {
+              ...i,
+              quantity: Math.min(Math.max(1, Math.round(quantity)), Math.max(i.stock, 1)),
+            }
+          : i
+      )
     );
   };
 

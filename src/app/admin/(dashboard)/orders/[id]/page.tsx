@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { formatCents } from "@/lib/money";
 import { getResend } from "@/lib/resend";
+import { requireAdmin } from "@/lib/session";
 import { renderShippingNotificationEmail } from "@/lib/orderEmail";
 import { RefundRequestActions } from "@/components/admin/RefundRequestActions";
 import type { OrderStatus } from "@prisma/client";
@@ -24,7 +25,10 @@ export default async function AdminOrderDetailPage({
 
   async function updateStatus(formData: FormData) {
     "use server";
+    await requireAdmin();
+
     const status = String(formData.get("status")) as OrderStatus;
+    if (!STATUS_OPTIONS.includes(status)) throw new Error("Invalid status");
     const trackingUrl = String(formData.get("trackingUrl") ?? "").trim();
     const wasFulfilled = order!.status === "FULFILLED";
 

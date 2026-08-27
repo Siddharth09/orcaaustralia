@@ -2,6 +2,22 @@
 
 _Last updated: 2026-08-27. I'll keep this file up to date as we go — check here any time for where things stand._
 
+## 🔒 Full code audit (2026-08-27)
+
+Ran a thorough security/correctness audit across payments, auth, email, admin, and storefront code. Real bugs found and fixed:
+
+- **Admin actions now check the session directly, not just the page wrapper** — defense-in-depth per Next.js's own security guidance, so a mutation can never run without a valid admin login even if the page-level gate were ever bypassed.
+- **Refund approval could double-refund** if clicked twice quickly (or from two admin tabs) — now claims the request atomically before calling Stripe, so only one refund is ever issued.
+- **Magic-link sign-in emails were reusable** — anyone who got hold of a link (forwarded email, shared inbox) could sign in with it repeatedly for 30 minutes. Links are now single-use; a second use is rejected. Also added a per-email cooldown so the sign-in endpoint can't be used to spam someone's inbox.
+- **Refund emails to customers could silently fail to send** with no record anywhere (same class of bug as the earlier Resend fix, missed on the two newest email types) — now checked and logged like every other email in the app.
+- **Customer name / refund reason / admin notes could break email formatting** if they contained `<` or `>` characters — all user-supplied text in emails is now safely escaped.
+- **A product with all sizes marked inactive showed "$∞"** on the homepage/listing instead of being hidden.
+- **Cart quantity box would delete the item** if you cleared it to type a new number, and had no ceiling tied to actual stock — fixed on the product page and in the cart/drawer.
+- **Re-adding an item already in your cart could show stale info** (old name/price) if the product had been edited/renamed since — now always refreshes to current data.
+- **Stock could go negative** under concurrent checkouts, and a Stripe webhook retry could silently skip a stock update forever if one item failed — both hardened.
+- Smaller fixes: admin can no longer save a negative price/stock or an invalid category, duplicate SKUs get a friendly error instead of a crash, editing a product's variants/photos now correctly refreshes the live storefront (was only refreshing the admin page), deleted product photos are now actually removed from storage instead of leaking, and the orders list is capped so it can't grow unbounded.
+- Full `tsc`/`eslint`/production build all clean; storefront fixes spot-checked live in browser (price display, quantity clamping, cart refresh).
+
 ## ✅ Done
 
 - **App built**: storefront (browse, sizes/SKUs, cart, Stripe Checkout), admin dashboard (orders, product/variant CRUD, photo upload), Stripe webhook + Resend confirmation/shipping emails, guest order tracking, contact/support form.
@@ -40,6 +56,12 @@ _Last updated: 2026-08-27. I'll keep this file up to date as we go — check her
 ## Still on the wishlist
 
 - **Animated hero graphic** — a GIF or short moving image combining your product designs and logo for extra polish on the homepage. Not started yet.
+
+## Known low-risk items (reviewed, not changed)
+
+- No brute-force lockout on the admin login page or the customer sign-in-link endpoint. Low real-world risk for a single-admin store on a strong password, but worth Vercel/Cloudflare-level bot protection if it ever becomes a target.
+- A sign-in link is tied to whoever clicks it, not to the device that requested it (standard for email magic links) — someone could theoretically bait you into clicking a link tied to their own account. Impact is limited to seeing their own order data, not yours.
+- Two customers buying the very last unit of a size at the exact same moment could both complete payment (oversell by one unit) — stock can no longer go negative, but a rare double-sale would need a manual "sorry, restocking" email rather than being prevented outright. Fixing this fully would mean holding stock during checkout, which is a bigger feature than this store's current scale needs.
 
 ## Ideas for later (not built — advisory)
 

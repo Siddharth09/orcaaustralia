@@ -1,10 +1,16 @@
 import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
+import { getAdminSession } from "@/lib/session";
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 const MAX_SIZE_BYTES = 8 * 1024 * 1024;
 
 export async function POST(request: Request) {
+  const session = await getAdminSession();
+  if (!session.isAdmin) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const formData = await request.formData();
   const file = formData.get("file");
 

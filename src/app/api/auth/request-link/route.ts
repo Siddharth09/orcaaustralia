@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { createMagicLinkToken } from "@/lib/magicLink";
+import { claimMagicLinkRequestSlot, createMagicLinkToken } from "@/lib/magicLink";
 import { getResend } from "@/lib/resend";
 import { renderMagicLinkEmail } from "@/lib/orderEmail";
 
@@ -13,7 +13,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please enter a valid email." }, { status: 400 });
   }
 
-  const { email } = parsed.data;
+  const email = parsed.data.email.toLowerCase().trim();
+  const canSend = await claimMagicLinkRequestSlot(email);
+  if (!canSend) {
+    return NextResponse.json({ success: true });
+  }
+
   const token = await createMagicLinkToken(email);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
   const link = `${siteUrl}/api/auth/verify?token=${encodeURIComponent(token)}`;

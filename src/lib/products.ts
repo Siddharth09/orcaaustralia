@@ -12,17 +12,16 @@ export async function getActiveProducts(category?: ProductCategory) {
     orderBy: { createdAt: "asc" },
   });
 
-  return products.map((product) => ({
-    slug: product.slug,
-    name: product.name,
-    category: product.category,
-    badge: product.badge,
-    coverImageUrl: product.coverImageUrl,
-    fromPriceCents: Math.min(
-      ...product.variants.map((v) => v.priceCents),
-      Infinity
-    ),
-  }));
+  return products
+    .filter((product) => product.variants.length > 0)
+    .map((product) => ({
+      slug: product.slug,
+      name: product.name,
+      category: product.category,
+      badge: product.badge,
+      coverImageUrl: product.coverImageUrl,
+      fromPriceCents: Math.min(...product.variants.map((v) => v.priceCents)),
+    }));
 }
 
 export async function getProductBySlug(slug: string) {

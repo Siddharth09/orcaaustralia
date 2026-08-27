@@ -3,6 +3,14 @@ import { formatCents } from "@/lib/money";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://orcaaustralia.com";
 const LOGO_URL = `${SITE_URL}/orca-icon.png`;
 
+function escapeHtml(input: string) {
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 export interface OrderEmailItem {
   productName: string;
   size: string;
@@ -68,8 +76,8 @@ function itemRows(items: OrderEmailItem[]) {
           }
         </td>
         <td style="padding:12px 0 12px 12px;border-bottom:1px solid #eeece4;color:#10203a;font-size:14px;">
-          ${item.productName}<br/>
-          <span style="color:#10203a99;font-size:12px;">Size ${item.size} &times; ${item.quantity}</span>
+          ${escapeHtml(item.productName)}<br/>
+          <span style="color:#10203a99;font-size:12px;">Size ${escapeHtml(item.size)} &times; ${item.quantity}</span>
         </td>
         <td style="padding:12px 0;border-bottom:1px solid #eeece4;color:#10203a;font-size:14px;text-align:right;white-space:nowrap;">
           ${formatCents(item.unitPriceCents * item.quantity)}
@@ -87,7 +95,7 @@ export function renderOrderConfirmationEmail(order: {
 }) {
   const body = `
     <h1 style="margin:0 0 4px;color:#0f2438;font-size:22px;">
-      Thanks${order.customerName ? `, ${order.customerName.split(" ")[0]}` : ""}!
+      Thanks${order.customerName ? `, ${escapeHtml(order.customerName.split(" ")[0])}` : ""}!
     </h1>
     <p style="margin:0 0 24px;color:#10203a;font-size:14px;">
       Your order <strong>#${order.id.slice(-8).toUpperCase()}</strong> is confirmed and being prepared.
@@ -119,7 +127,7 @@ export function renderShippingNotificationEmail(order: {
 }) {
   const body = `
     <h1 style="margin:0 0 4px;color:#0f2438;font-size:22px;">
-      On its way${order.customerName ? `, ${order.customerName.split(" ")[0]}` : ""}!
+      On its way${order.customerName ? `, ${escapeHtml(order.customerName.split(" ")[0])}` : ""}!
     </h1>
     <p style="margin:0 0 24px;color:#10203a;font-size:14px;">
       Good news — your order <strong>#${order.id.slice(-8).toUpperCase()}</strong> has shipped.
@@ -163,10 +171,10 @@ export function renderRefundRequestedAdminEmail(details: {
       A customer has requested a refund on order <strong>#${details.orderId.slice(-8).toUpperCase()}</strong>.
     </p>
     <table style="width:100%;font-size:14px;color:#10203a;">
-      <tr><td style="padding:4px 0;color:#10203a99;">Item</td><td style="padding:4px 0;text-align:right;">${details.productName} (${details.size})</td></tr>
+      <tr><td style="padding:4px 0;color:#10203a99;">Item</td><td style="padding:4px 0;text-align:right;">${escapeHtml(details.productName)} (${escapeHtml(details.size)})</td></tr>
       <tr><td style="padding:4px 0;color:#10203a99;">Amount</td><td style="padding:4px 0;text-align:right;">${formatCents(details.amountCents)}</td></tr>
-      <tr><td style="padding:4px 0;color:#10203a99;">Customer</td><td style="padding:4px 0;text-align:right;">${details.customerEmail}</td></tr>
-      <tr><td style="padding:4px 0;color:#10203a99;">Reason</td><td style="padding:4px 0;text-align:right;">${details.reason}</td></tr>
+      <tr><td style="padding:4px 0;color:#10203a99;">Customer</td><td style="padding:4px 0;text-align:right;">${escapeHtml(details.customerEmail)}</td></tr>
+      <tr><td style="padding:4px 0;color:#10203a99;">Reason</td><td style="padding:4px 0;text-align:right;">${escapeHtml(details.reason)}</td></tr>
     </table>
     ${ctaButton(`${SITE_URL}/admin/refunds`, "Review Request")}
   `;
@@ -182,7 +190,7 @@ export function renderRefundApprovedEmail(details: {
     <h1 style="margin:0 0 4px;color:#0f2438;font-size:22px;">Your refund is on its way</h1>
     <p style="margin:0 0 20px;color:#10203a;font-size:14px;">
       We've processed a refund of <strong>${formatCents(details.amountCents)}</strong> for
-      <strong>${details.productName}</strong> from order <strong>#${details.orderId.slice(-8).toUpperCase()}</strong>.
+      <strong>${escapeHtml(details.productName)}</strong> from order <strong>#${details.orderId.slice(-8).toUpperCase()}</strong>.
       It should appear back in your account within 5–10 business days, depending on your bank.
     </p>
     ${ctaButton(`${SITE_URL}/account`, "View Order")}
@@ -198,11 +206,11 @@ export function renderRefundDeniedEmail(details: {
   const body = `
     <h1 style="margin:0 0 4px;color:#0f2438;font-size:22px;">About your refund request</h1>
     <p style="margin:0 0 20px;color:#10203a;font-size:14px;">
-      We've taken a look at your refund request for <strong>${details.productName}</strong>
+      We've taken a look at your refund request for <strong>${escapeHtml(details.productName)}</strong>
       from order <strong>#${details.orderId.slice(-8).toUpperCase()}</strong>, and unfortunately
       we're not able to process it.
     </p>
-    ${details.adminNote ? `<p style="margin:0 0 20px;color:#10203a;font-size:14px;background:#f5f2ea;padding:12px 16px;border-radius:8px;">${details.adminNote}</p>` : ""}
+    ${details.adminNote ? `<p style="margin:0 0 20px;color:#10203a;font-size:14px;background:#f5f2ea;padding:12px 16px;border-radius:8px;">${escapeHtml(details.adminNote)}</p>` : ""}
     <p style="margin:0;color:#10203a;font-size:14px;">
       Questions? Just reply to this email or reach us at
       <a href="mailto:support@astryks.com" style="color:#0f2438;">support@astryks.com</a>.
