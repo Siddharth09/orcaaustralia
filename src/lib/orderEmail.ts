@@ -37,6 +37,24 @@ function emailShell(bodyHtml: string) {
   </div>`;
 }
 
+function ctaButton(href: string, label: string) {
+  return `
+    <div style="margin-top:24px;text-align:center;">
+      <a href="${href}" style="display:inline-block;background:#0f2438;color:#ffffff;text-decoration:none;font-size:13px;font-weight:600;padding:12px 28px;border-radius:999px;">
+        ${label}
+      </a>
+    </div>`;
+}
+
+function secondaryButton(href: string, label: string) {
+  return `
+    <div style="margin-top:12px;text-align:center;">
+      <a href="${href}" style="display:inline-block;background:#ffffff;color:#0f2438;text-decoration:none;font-size:13px;font-weight:600;padding:11px 28px;border-radius:999px;border:1px solid #0f2438;">
+        ${label}
+      </a>
+    </div>`;
+}
+
 function itemRows(items: OrderEmailItem[]) {
   return items
     .map(
@@ -88,11 +106,7 @@ export function renderOrderConfirmationEmail(order: {
     <p style="margin:28px 0 0;color:#10203a;font-size:14px;">
       We'll send another email as soon as your order ships.
     </p>
-    <div style="margin-top:24px;text-align:center;">
-      <a href="${SITE_URL}/track-order" style="display:inline-block;background:#0f2438;color:#ffffff;text-decoration:none;font-size:13px;font-weight:600;padding:12px 28px;border-radius:999px;">
-        Track Your Order
-      </a>
-    </div>
+    ${ctaButton(`${SITE_URL}/account`, "View Order")}
   `;
   return emailShell(body);
 }
@@ -101,6 +115,7 @@ export function renderShippingNotificationEmail(order: {
   id: string;
   customerName?: string | null;
   items?: OrderEmailItem[];
+  trackingUrl?: string | null;
 }) {
   const body = `
     <h1 style="margin:0 0 4px;color:#0f2438;font-size:22px;">
@@ -114,11 +129,84 @@ export function renderShippingNotificationEmail(order: {
       Questions about your delivery? Just reply to this email or reach us at
       <a href="mailto:support@astryks.com" style="color:#0f2438;">support@astryks.com</a>.
     </p>
-    <div style="margin-top:24px;text-align:center;">
-      <a href="${SITE_URL}/track-order" style="display:inline-block;background:#0f2438;color:#ffffff;text-decoration:none;font-size:13px;font-weight:600;padding:12px 28px;border-radius:999px;">
-        Track Your Order
-      </a>
-    </div>
+    ${order.trackingUrl ? ctaButton(order.trackingUrl, "Track Package") : ""}
+    ${secondaryButton(`${SITE_URL}/account`, "View Order")}
+  `;
+  return emailShell(body);
+}
+
+export function renderMagicLinkEmail(link: string) {
+  const body = `
+    <h1 style="margin:0 0 4px;color:#0f2438;font-size:22px;">Sign in to your account</h1>
+    <p style="margin:0 0 24px;color:#10203a;font-size:14px;">
+      Click the button below to sign in and see your order history. This link expires in 30 minutes and can only be used once requested by you.
+    </p>
+    ${ctaButton(link, "Sign In")}
+    <p style="margin:24px 0 0;color:#10203a99;font-size:12px;">
+      Didn't request this? You can safely ignore this email.
+    </p>
+  `;
+  return emailShell(body);
+}
+
+export function renderRefundRequestedAdminEmail(details: {
+  orderId: string;
+  productName: string;
+  size: string;
+  amountCents: number;
+  reason: string;
+  customerEmail: string;
+}) {
+  const body = `
+    <h1 style="margin:0 0 4px;color:#0f2438;font-size:22px;">New refund request</h1>
+    <p style="margin:0 0 20px;color:#10203a;font-size:14px;">
+      A customer has requested a refund on order <strong>#${details.orderId.slice(-8).toUpperCase()}</strong>.
+    </p>
+    <table style="width:100%;font-size:14px;color:#10203a;">
+      <tr><td style="padding:4px 0;color:#10203a99;">Item</td><td style="padding:4px 0;text-align:right;">${details.productName} (${details.size})</td></tr>
+      <tr><td style="padding:4px 0;color:#10203a99;">Amount</td><td style="padding:4px 0;text-align:right;">${formatCents(details.amountCents)}</td></tr>
+      <tr><td style="padding:4px 0;color:#10203a99;">Customer</td><td style="padding:4px 0;text-align:right;">${details.customerEmail}</td></tr>
+      <tr><td style="padding:4px 0;color:#10203a99;">Reason</td><td style="padding:4px 0;text-align:right;">${details.reason}</td></tr>
+    </table>
+    ${ctaButton(`${SITE_URL}/admin/refunds`, "Review Request")}
+  `;
+  return emailShell(body);
+}
+
+export function renderRefundApprovedEmail(details: {
+  orderId: string;
+  productName: string;
+  amountCents: number;
+}) {
+  const body = `
+    <h1 style="margin:0 0 4px;color:#0f2438;font-size:22px;">Your refund is on its way</h1>
+    <p style="margin:0 0 20px;color:#10203a;font-size:14px;">
+      We've processed a refund of <strong>${formatCents(details.amountCents)}</strong> for
+      <strong>${details.productName}</strong> from order <strong>#${details.orderId.slice(-8).toUpperCase()}</strong>.
+      It should appear back in your account within 5–10 business days, depending on your bank.
+    </p>
+    ${ctaButton(`${SITE_URL}/account`, "View Order")}
+  `;
+  return emailShell(body);
+}
+
+export function renderRefundDeniedEmail(details: {
+  orderId: string;
+  productName: string;
+  adminNote?: string | null;
+}) {
+  const body = `
+    <h1 style="margin:0 0 4px;color:#0f2438;font-size:22px;">About your refund request</h1>
+    <p style="margin:0 0 20px;color:#10203a;font-size:14px;">
+      We've taken a look at your refund request for <strong>${details.productName}</strong>
+      from order <strong>#${details.orderId.slice(-8).toUpperCase()}</strong>, and unfortunately
+      we're not able to process it.
+    </p>
+    ${details.adminNote ? `<p style="margin:0 0 20px;color:#10203a;font-size:14px;background:#f5f2ea;padding:12px 16px;border-radius:8px;">${details.adminNote}</p>` : ""}
+    <p style="margin:0;color:#10203a;font-size:14px;">
+      Questions? Just reply to this email or reach us at
+      <a href="mailto:support@astryks.com" style="color:#0f2438;">support@astryks.com</a>.
+    </p>
   `;
   return emailShell(body);
 }

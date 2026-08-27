@@ -51,9 +51,15 @@ export async function POST(request: Request) {
       };
     });
 
+    const paymentIntentId =
+      typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : (session.payment_intent?.id ?? null);
+
     const order = await prisma.order.create({
       data: {
         stripeSessionId: session.id,
+        paymentIntentId,
         customerEmail: session.customer_details?.email ?? "",
         customerName: session.customer_details?.name ?? undefined,
         shippingAddress: session.collected_information?.shipping_details

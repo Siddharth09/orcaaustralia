@@ -24,6 +24,11 @@ export function SiteFooter() {
             </p>
             <ul className="mt-2 space-y-1">
               <li>
+                <Link href="/account" className="hover:text-navy hover:underline">
+                  My Account
+                </Link>
+              </li>
+              <li>
                 <Link href="/track-order" className="hover:text-navy hover:underline">
                   Track Your Order
                 </Link>

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatCents } from "@/lib/money";
 import { getResend } from "@/lib/resend";
 import { renderShippingNotificationEmail } from "@/lib/orderEmail";
+import { RefundRequestActions } from "@/components/admin/RefundRequestActions";
 import type { OrderStatus } from "@prisma/client";
 
 const STATUS_OPTIONS: OrderStatus[] = ["PENDING", "PAID", "FULFILLED", "CANCELLED"];
@@ -16,7 +17,7 @@ export default async function AdminOrderDetailPage({
   const { id } = await params;
   const order = await prisma.order.findUnique({
     where: { id },
-    include: { items: true },
+    include: { items: true, refundRequests: { include: { orderItem: true } } },
   });
 
   if (!order) notFound();
@@ -24,11 +25,12 @@ export default async function AdminOrderDetailPage({
   async function updateStatus(formData: FormData) {
     "use server";
     const status = String(formData.get("status")) as OrderStatus;
+    const trackingUrl = String(formData.get("trackingUrl") ?? "").trim();
     const wasFulfilled = order!.status === "FULFILLED";
 
     const updated = await prisma.order.update({
       where: { id },
-      data: { status },
+      data: { status, trackingUrl: trackingUrl || null },
     });
 
     if (status === "FULFILLED" && !wasFulfilled && updated.customerEmail) {
@@ -150,6 +152,16 @@ export default async function AdminOrderDetailPage({
                 </option>
               ))}
             </select>
+            <label htmlFor="trackingUrl" className="mt-3 block text-xs font-medium text-navy">
+              Tracking URL <span className="text-navy/50">(optional)</span>
+            </label>
+            <input
+              id="trackingUrl"
+              name="trackingUrl"
+              defaultValue={order.trackingUrl ?? ""}
+              placeholder="https://auspost.com.au/mypost/track/..."
+              className="mt-1 w-full rounded border border-black/20 px-3 py-2 text-sm"
+            />
             <button
               type="submit"
               className="mt-3 w-full rounded-full bg-navy py-2 text-sm font-semibold text-white hover:bg-navy-dark"
@@ -157,6 +169,32 @@ export default async function AdminOrderDetailPage({
               Update
             </button>
           </form>
+
+          {order.refundRequests.length > 0 && (
+            <div className="rounded-lg border border-black/10 bg-white p-5">
+              <h2 className="text-sm font-semibold text-navy">Refund Requests</h2>
+              <div className="mt-3 space-y-3">
+                {order.refundRequests.map((rr) => (
+                  <div key={rr.id} className="rounded border border-black/10 p-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-navy">
+                        {rr.orderItem?.productName ?? "Item removed"}
+                      </p>
+                      <span className="rounded-full bg-sand px-2 py-0.5 text-xs font-medium text-navy">
+                        {rr.status}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-navy/60">
+                      {formatCents(rr.amountCents)} &middot; &ldquo;{rr.reason}&rdquo;
+                    </p>
+                    {rr.status === "REQUESTED" && (
+                      <RefundRequestActions id={rr.id} compact />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

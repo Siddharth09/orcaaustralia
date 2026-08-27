@@ -31,6 +31,12 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum RefundStatus {
+  REQUESTED
+  APPROVED
+  DENIED
+}
+
 model Product {
   id            String          @id @default(cuid())
   slug          String          @unique
@@ -63,25 +69,44 @@ model Variant {
 model Order {
   id                String      @id @default(cuid())
   stripeSessionId   String      @unique
+  paymentIntentId   String?
   customerEmail     String
   customerName      String?
   shippingAddress   Json?
   status            OrderStatus @default(PENDING)
   totalCents        Int
+  trackingUrl       String?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
   items             OrderItem[]
+  refundRequests    RefundRequest[]
 }
 
 model OrderItem {
-  id             String   @id @default(cuid())
-  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id             String          @id @default(cuid())
+  order          Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId        String
-  variant        Variant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  variant        Variant?        @relation(fields: [variantId], references: [id], onDelete: SetNull)
   variantId      String?
   productName    String
   size           String
   sku            String
   quantity       Int
   unitPriceCents Int
+  refundRequests RefundRequest[]
+}
+
+model RefundRequest {
+  id            String       @id @default(cuid())
+  order         Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId       String
+  orderItem     OrderItem?   @relation(fields: [orderItemId], references: [id], onDelete: SetNull)
+  orderItemId   String?
+  reason        String
+  amountCents   Int
+  status        RefundStatus @default(REQUESTED)
+  stripeRefundId String?
+  adminNote     String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }

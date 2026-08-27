@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAdminSession } from "@/lib/session";
+import { prisma } from "@/lib/prisma";
 
 async function logout() {
   "use server";
@@ -17,6 +18,10 @@ export default async function DashboardLayout({
 }) {
   const session = await getAdminSession();
   if (!session.isAdmin) redirect("/admin/login");
+
+  const pendingRefunds = await prisma.refundRequest.count({
+    where: { status: "REQUESTED" },
+  });
 
   return (
     <div className="flex min-h-screen">
@@ -40,6 +45,17 @@ export default async function DashboardLayout({
             className="block rounded px-2 py-2 font-medium text-navy/80 hover:bg-sand"
           >
             Products
+          </Link>
+          <Link
+            href="/admin/refunds"
+            className="flex items-center justify-between rounded px-2 py-2 font-medium text-navy/80 hover:bg-sand"
+          >
+            Refunds
+            {pendingRefunds > 0 && (
+              <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-white">
+                {pendingRefunds}
+              </span>
+            )}
           </Link>
         </nav>
         <form action={logout} className="mt-10 px-2">
