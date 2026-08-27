@@ -1,40 +1,45 @@
 # Orca Australia — Setup Progress
 
-_Last updated: 2026-08-26. I'll keep this file up to date as we go — check here any time for where things stand._
+_Last updated: 2026-08-27. I'll keep this file up to date as we go — check here any time for where things stand._
 
 ## ✅ Done
 
 - **App built**: storefront (browse, sizes/SKUs, cart, Stripe Checkout), admin dashboard (orders, product/variant CRUD, photo upload), Stripe webhook + Resend confirmation/shipping emails, guest order tracking, contact/support form.
 - **Real product catalog live — 7 products across 3 categories**: **Swim Shorts** (High Seas Print, Polar Bear Print — both "New"), **Gym Shorts** (Black/Blue/Green), and **Tencel Modal Boxer Briefs** (Lock-In Pouch, Classic Lining). All with real front/back/detail/model photos, S–XXL sizes.
 - **"What's Tencel Modal?" section**: a fun, friendly explainer under the Boxer Briefs category page comparing Tencel Modal (made by Lenzing) to cotton, bamboo viscose, and nylon.
-- **Real branding**: logo mark in header/footer/favicon, homepage hero uses your cover photo, category tiles use real model photos, homepage trust strip (quick-dry, Tencel modal, Aussie-made, secure Stripe checkout).
-- **Guest order tracking** (`/track-order`): customers enter email + order number to see live/past order status and history — no account needed.
+- **Real branding**: logo mark in header/footer/favicon (fixed a subtle stretch distortion — icons are now proper 588×588 squares), homepage hero uses your cover photo, category tiles use real model photos, homepage trust strip (quick-dry, Tencel modal, Aussie-made, secure Stripe checkout).
+- **Customer accounts** (`/account`): passwordless magic-link sign-in (email a one-time link, no password to manage) shows every past order tied to that email in one place.
+- **Refund requests**: customers can request a refund on a specific item from their order history with a reason; you get an email notification immediately, review it at `/admin/refunds`, and "Approve & Refund" triggers a real Stripe refund automatically (or "Deny" with an optional note) — the customer gets an email either way. You stay in control of the actual money movement.
+- **Parcel tracking**: paste any carrier's tracking link into an order in `/admin/orders/[id]` — it shows on the customer's `/account` page and as a "Track Package" button in the shipping-notification email.
+- **Guest order tracking** (`/track-order`) still works too: customers who don't want to log in can enter email + order number to see order status — no account needed.
 - **Contact/support page** (`/contact`): on-site form emails support@astryks.com with reply-to set to the customer; linked from order tracking and the footer.
-- **Shipping-notification email**: sent automatically when an admin marks an order "Fulfilled".
-- **Footer**: support email + "Orca Australia, part of the Astryks Group | astryks.com".
-- **Bug found & fixed during audit**: Resend's SDK returns `{ data, error }` instead of throwing on failures — all three email send points (order confirmation, shipping notice, contact form) were silently "succeeding" even when nothing sent. Now properly checked. Also fixed: duplicated page titles, several form labels missing proper accessibility associations.
+- **Shipping-notification email**: sent automatically when an admin marks an order "Fulfilled", now with a tracking button when a tracking URL is set.
+- **Footer**: support email, "My Account" link, and "Orca Australia, part of the Astryks Group | astryks.com".
+- **Resend email is fully wired up**: domain verified, API key set, all transactional emails (order confirmation, shipping notice, magic-link sign-in, refund requested/approved/denied, contact form) sending for real.
+- **GitHub → Vercel auto-deploy connected**: pushing to `master` deploys automatically — no more manual `vercel --prod`.
+- **Bugs found & fixed during audits**: Resend's SDK returns `{ data, error }` instead of throwing on failures — all email send points were silently "succeeding" even when nothing sent; now properly checked everywhere. A refund-approval failure (e.g. bad Stripe key) used to crash the whole admin page — now shows a friendly inline error instead. Also fixed: duplicated page titles, several form labels missing proper accessibility associations, non-square logo icons.
 - **Small conversion/legitimacy wins**: Stripe promo codes enabled at checkout, Open Graph + per-product SEO metadata, product badges.
 - **GitHub repo**: https://github.com/Siddharth09/orcaaustralia (branch `master`), fully up to date.
 - **Database (Neon)**: project `orca-australia` in Sydney (`ap-southeast-2`).
-- **Vercel project**: `astryks/orca-australia`, with `DATABASE_URL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, `BLOB_READ_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL` all set.
+- **Vercel project**: `astryks/orca-australia`, with `DATABASE_URL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, `BLOB_READ_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL`, `RESEND_API_KEY` all set.
 - **Vercel Blob storage**: holds all product photos.
 - **🚀 Site is LIVE at your real domain**: https://orcaaustralia.com (and https://orca-australia.vercel.app) — DNS pointed at Vercel, SSL certificate provisioned, verified serving correctly.
 
 ## ⏳ Pending — next steps in order
 
-1. **Stripe test keys** — from dashboard.stripe.com/apikeys (Test mode): Secret key (`sk_test_...`) and Publishable key (`pk_test_...`).
+1. **Stripe test keys** — this is the one thing still blocking real checkout. From dashboard.stripe.com/apikeys (Test mode): Secret key (`sk_test_...`) and Publishable key (`pk_test_...`).
 
-2. **Resend API key** — from resend.com/api-keys (`re_...`), plus confirm `orcaaustralia.com` is verified as a sending domain there. (Now that email failures are actually surfaced, we'll know immediately once this is wired up correctly.)
+2. **Stripe webhook** — add a webhook endpoint in Stripe pointing at `https://orcaaustralia.com/api/webhooks/stripe` (event: `checkout.session.completed`), then add its signing secret as `STRIPE_WEBHOOK_SECRET`.
 
-3. **Stripe webhook** — add a webhook endpoint in Stripe pointing at `https://orcaaustralia.com/api/webhooks/stripe`, then add its signing secret as `STRIPE_WEBHOOK_SECRET`.
+3. **Enable Stripe's built-in abandoned-cart recovery emails** — Stripe Dashboard → Settings → Checkout and Payment Links → Customer emails. One-click toggle once the Stripe account above is set up; no custom code needed since our cart is client-side only until checkout starts.
 
-4. **Enable Stripe's built-in abandoned-cart recovery emails** — Stripe Dashboard → Settings → Checkout and Payment Links → Customer emails. This is a one-click toggle once the Stripe account above is set up; no custom code needed since our cart is client-side only until checkout starts.
+4. **Full smoke test** — once Stripe keys are in, place a real test-mode order end-to-end: confirm it shows in `/admin/orders`, the confirmation email arrives, marking it "Fulfilled" with a tracking URL sends the shipping email correctly, the order shows on `/account`, a refund request goes through and a real (test-mode) Stripe refund succeeds.
 
-5. **Full smoke test** — place a real test-mode order on the live site, confirm it shows up in `/admin/orders`, the confirmation email arrives, and marking it "Fulfilled" sends the shipping email.
+5. **Go live for real** — when ready to accept real payments, switch Stripe to Live mode (new live keys + live webhook).
 
-6. **Connect GitHub to Vercel for auto-deploy** (optional convenience) — currently deploys are manual (`vercel --prod`). To enable: Vercel dashboard → Account Settings → Login Connections → connect GitHub, then I can link the repo.
+## Still on the wishlist
 
-7. **Go live for real** — when ready to accept real payments, switch Stripe to Live mode (new live keys + live webhook).
+- **Animated hero graphic** — a GIF or short moving image combining your product designs and logo for extra polish on the homepage. Not started yet.
 
 ## Ideas for later (not built — advisory)
 
