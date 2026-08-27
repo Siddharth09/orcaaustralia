@@ -33,11 +33,30 @@ export default async function AdminOrderDetailPage({
 
     if (status === "FULFILLED" && !wasFulfilled && updated.customerEmail) {
       try {
+        const variantIds = order!.items
+          .map((item) => item.variantId)
+          .filter((vid): vid is string => Boolean(vid));
+        const variants = await prisma.variant.findMany({
+          where: { id: { in: variantIds } },
+          include: { product: { select: { coverImageUrl: true } } },
+        });
+        const imageByVariantId = new Map(
+          variants.map((v) => [v.id, v.product.coverImageUrl])
+        );
+
         const { error } = await getResend().emails.send({
           from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
           to: updated.customerEmail,
           subject: "Your Orca Australia order has shipped",
-          html: renderShippingNotificationEmail(updated),
+          html: renderShippingNotificationEmail({
+            ...updated,
+            items: order!.items.map((item) => ({
+              ...item,
+              imageUrl: item.variantId
+                ? imageByVariantId.get(item.variantId)
+                : null,
+            })),
+          }),
         });
         if (error) throw error;
       } catch (err) {

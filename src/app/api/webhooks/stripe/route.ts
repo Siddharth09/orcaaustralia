@@ -88,11 +88,30 @@ export async function POST(request: Request) {
 
     if (order.customerEmail && process.env.RESEND_API_KEY) {
       try {
+        const variantIds = order.items
+          .map((item) => item.variantId)
+          .filter((id): id is string => Boolean(id));
+        const variants = await prisma.variant.findMany({
+          where: { id: { in: variantIds } },
+          include: { product: { select: { coverImageUrl: true } } },
+        });
+        const imageByVariantId = new Map(
+          variants.map((v) => [v.id, v.product.coverImageUrl])
+        );
+
         const { error } = await getResend().emails.send({
           from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
           to: order.customerEmail,
           subject: "Your Orca Australia order is confirmed",
-          html: renderOrderConfirmationEmail(order),
+          html: renderOrderConfirmationEmail({
+            ...order,
+            items: order.items.map((item) => ({
+              ...item,
+              imageUrl: item.variantId
+                ? imageByVariantId.get(item.variantId)
+                : null,
+            })),
+          }),
         });
         if (error) throw error;
       } catch (err) {
