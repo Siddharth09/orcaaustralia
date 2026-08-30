@@ -1,6 +1,17 @@
 # Orca Australia — Setup Progress
 
-_Last updated: 2026-08-27. I'll keep this file up to date as we go — check here any time for where things stand._
+_Last updated: 2026-08-30. I'll keep this file up to date as we go — check here any time for where things stand._
+
+## 💳 Stripe is live (test mode) — 2026-08-30
+
+Added your `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` to Vercel and redeployed. Ran a full real test-mode purchase end-to-end to confirm everything actually works, not just that it deploys:
+- Added an item to cart on the live site, checked out through Stripe's real hosted Checkout page (test mode), paid with Stripe's test card.
+- Redirected back to the "Thank you!" page correctly.
+- Confirmed in the database: the order landed with status `PAID`, correct total (item + shipping), correct shipping address, and the Stripe payment ID captured (needed for refunds).
+- Confirmed stock decremented correctly for the purchased size.
+- Confirmed the webhook processed with no errors, meaning the confirmation email sent cleanly.
+
+Checkout, order creation, stock updates, and confirmation emails are now fully verified working. Still in **test mode** — no real money moves yet. See "Pending" below for what's left before going live for real.
 
 ## 🔒 Full code audit (2026-08-27)
 
@@ -43,15 +54,11 @@ Ran a thorough security/correctness audit across payments, auth, email, admin, a
 
 ## ⏳ Pending — next steps in order
 
-1. **Stripe test keys** — this is the one thing still blocking real checkout. From dashboard.stripe.com/apikeys (Test mode): Secret key (`sk_test_...`) and Publishable key (`pk_test_...`).
+1. **Enable Stripe's built-in abandoned-cart recovery emails** (optional) — Stripe Dashboard → Settings → Checkout and Payment Links → Customer emails. One-click toggle; no custom code needed since our cart is client-side only until checkout starts.
 
-2. **Stripe webhook** — add a webhook endpoint in Stripe pointing at `https://orcaaustralia.com/api/webhooks/stripe` (event: `checkout.session.completed`), then add its signing secret as `STRIPE_WEBHOOK_SECRET`.
+2. **Finish the smoke test** — the purchase → order → stock → confirmation email path is confirmed working (see above). Still worth trying once yourself: mark that test order "Fulfilled" with a tracking URL and confirm the shipping email arrives, check the order shows on `/account`, and submit + approve a refund request to confirm a real (test-mode) Stripe refund goes through.
 
-3. **Enable Stripe's built-in abandoned-cart recovery emails** — Stripe Dashboard → Settings → Checkout and Payment Links → Customer emails. One-click toggle once the Stripe account above is set up; no custom code needed since our cart is client-side only until checkout starts.
-
-4. **Full smoke test** — once Stripe keys are in, place a real test-mode order end-to-end: confirm it shows in `/admin/orders`, the confirmation email arrives, marking it "Fulfilled" with a tracking URL sends the shipping email correctly, the order shows on `/account`, a refund request goes through and a real (test-mode) Stripe refund succeeds.
-
-5. **Go live for real** — when ready to accept real payments, switch Stripe to Live mode (new live keys + live webhook).
+3. **Go live for real** — when ready to accept real payments: switch your Stripe account to Live mode, get new Live-mode keys (`sk_live_...`), create a new Live-mode webhook endpoint (same URL/event) for its own `whsec_...`, and swap `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` in Vercel to the live values.
 
 ## Still on the wishlist
 
