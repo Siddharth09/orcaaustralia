@@ -2,9 +2,17 @@
 
 _Last updated: 2026-08-30. I'll keep this file up to date as we go — check here any time for where things stand._
 
-## 💳 Stripe is live (test mode) — 2026-08-30
+## 🟢 Stripe switched to LIVE mode — 2026-08-30
 
-Added your `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` to Vercel and redeployed. Ran a full real test-mode purchase end-to-end to confirm everything actually works, not just that it deploys:
+Swapped the test keys for your real `sk_live_...` and `whsec_...` on Vercel and redeployed. Real money now moves through checkout. Verified the live secret key actually works by creating a real Checkout Session via the API (confirmed the session ID came back as `cs_live_...`, not `cs_test_...`) — I stopped short of completing a real purchase myself, since that needs a real card and I don't handle payment details directly.
+
+**Recommended next step**: make one small real purchase yourself (something you'd actually want, or a cheap test item) to confirm the live path works end-to-end exactly like the test-mode run below, then approve a refund for it from `/admin/refunds` to see the real refund flow work too.
+
+Your Stripe account needs to be "activated" (business details, bank account for payouts, tax/ABN info) before live charges will actually succeed — if a real checkout fails, that's the first thing to check in the Stripe dashboard.
+
+## 💳 Stripe test-mode purchase verified end-to-end — 2026-08-30
+
+Before switching to live keys, ran a full real test-mode purchase end-to-end to confirm everything actually works, not just that it deploys:
 - Added an item to cart on the live site, checked out through Stripe's real hosted Checkout page (test mode), paid with Stripe's test card.
 - Redirected back to the "Thank you!" page correctly.
 - Confirmed in the database: the order landed with status `PAID`, correct total (item + shipping), correct shipping address, and the Stripe payment ID captured (needed for refunds).
@@ -48,17 +56,17 @@ Ran a thorough security/correctness audit across payments, auth, email, admin, a
 - **Small conversion/legitimacy wins**: Stripe promo codes enabled at checkout, Open Graph + per-product SEO metadata, product badges.
 - **GitHub repo**: https://github.com/Siddharth09/orcaaustralia (branch `master`), fully up to date.
 - **Database (Neon)**: project `orca-australia` in Sydney (`ap-southeast-2`).
-- **Vercel project**: `astryks/orca-australia`, with `DATABASE_URL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, `BLOB_READ_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL`, `RESEND_API_KEY` all set.
+- **Vercel project**: `astryks/orca-australia`, with `DATABASE_URL`, `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET`, `BLOB_READ_WRITE_TOKEN`, `NEXT_PUBLIC_SITE_URL`, `RESEND_API_KEY`, `STRIPE_SECRET_KEY` (live), `STRIPE_WEBHOOK_SECRET` (live) all set.
 - **Vercel Blob storage**: holds all product photos.
 - **🚀 Site is LIVE at your real domain**: https://orcaaustralia.com (and https://orca-australia.vercel.app) — DNS pointed at Vercel, SSL certificate provisioned, verified serving correctly.
 
 ## ⏳ Pending — next steps in order
 
-1. **Enable Stripe's built-in abandoned-cart recovery emails** (optional) — Stripe Dashboard → Settings → Checkout and Payment Links → Customer emails. One-click toggle; no custom code needed since our cart is client-side only until checkout starts.
+1. **Make one real purchase yourself** to confirm live mode actually charges and completes correctly end-to-end (I can't do this step — it needs a real card). Then approve its refund from `/admin/refunds` to confirm real refunds work too.
 
-2. **Finish the smoke test** — the purchase → order → stock → confirmation email path is confirmed working (see above). Still worth trying once yourself: mark that test order "Fulfilled" with a tracking URL and confirm the shipping email arrives, check the order shows on `/account`, and submit + approve a refund request to confirm a real (test-mode) Stripe refund goes through.
+2. **Confirm your Stripe account is "activated"** — check the Stripe dashboard for any outstanding business/bank/tax verification steps. Live charges won't succeed until that's complete, if it isn't already.
 
-3. **Go live for real** — when ready to accept real payments: switch your Stripe account to Live mode, get new Live-mode keys (`sk_live_...`), create a new Live-mode webhook endpoint (same URL/event) for its own `whsec_...`, and swap `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` in Vercel to the live values.
+3. **Enable Stripe's built-in abandoned-cart recovery emails** (optional) — Stripe Dashboard → Settings → Checkout and Payment Links → Customer emails. One-click toggle; no custom code needed since our cart is client-side only until checkout starts.
 
 ## Still on the wishlist
 
