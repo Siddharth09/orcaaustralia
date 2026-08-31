@@ -67,6 +67,7 @@ export async function approveRefund(
       const { error } = await getResend().emails.send({
         from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
         to: refundRequest.order.customerEmail,
+        replyTo: "support@astryks.com",
         subject: "Your refund has been processed",
         html: renderRefundApprovedEmail({
           orderId: refundRequest.orderId,
@@ -112,6 +113,7 @@ export async function denyRefund(
       const { error } = await getResend().emails.send({
         from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
         to: refundRequest.order.customerEmail,
+        replyTo: "support@astryks.com",
         subject: "About your refund request",
         html: renderRefundDeniedEmail({
           orderId: refundRequest.orderId,

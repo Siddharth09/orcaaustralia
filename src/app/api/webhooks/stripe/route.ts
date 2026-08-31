@@ -128,6 +128,7 @@ export async function POST(request: Request) {
         const { error } = await getResend().emails.send({
           from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
           to: order.customerEmail,
+          replyTo: "support@astryks.com",
           subject: "Your Orca Australia order is confirmed",
           html: renderOrderConfirmationEmail({
             ...order,

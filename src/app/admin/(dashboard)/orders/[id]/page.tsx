@@ -53,6 +53,7 @@ export default async function AdminOrderDetailPage({
         const { error } = await getResend().emails.send({
           from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
           to: updated.customerEmail,
+          replyTo: "support@astryks.com",
           subject: "Your Orca Australia order has shipped",
           html: renderShippingNotificationEmail({
             ...updated,

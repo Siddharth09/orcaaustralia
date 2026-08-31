@@ -21,12 +21,13 @@ export async function POST(request: Request) {
 
   const token = await createMagicLinkToken(email);
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const link = `${siteUrl}/api/auth/verify?token=${encodeURIComponent(token)}`;
+  const link = `${siteUrl}/account/verify?token=${encodeURIComponent(token)}`;
 
   try {
     const { error } = await getResend().emails.send({
       from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
       to: email,
+      replyTo: "support@astryks.com",
       subject: "Sign in to Orca Australia",
       html: renderMagicLinkEmail(link),
     });

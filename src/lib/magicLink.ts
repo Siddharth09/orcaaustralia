@@ -23,27 +23,43 @@ export async function createMagicLinkToken(email: string) {
   });
 }
 
-// Returns the email for a valid, not-yet-used, not-expired token, and
-// atomically marks it used so the same link can't be replayed.
-export async function verifyMagicLinkToken(token: string) {
+async function unsealMagicLinkToken(token: string) {
   try {
     const data = await unsealData<MagicLinkPayload>(token, {
       password: customerSessionOptions.password,
       ttl: TTL_SECONDS,
     });
     if (data.purpose !== "login" || !data.email || !data.jti) return null;
-
-    try {
-      await prisma.magicLinkToken.create({ data: { jti: data.jti } });
-    } catch {
-      // Unique constraint violation — this token was already used.
-      return null;
-    }
-
-    return data.email;
+    return data;
   } catch {
     return null;
   }
+}
+
+// Read-only check: is this token well-formed and not expired? Does NOT mark
+// it used. Safe to call from a plain GET page, including when an email
+// security scanner (Gmail/Outlook "Safe Links") prefetches the link before
+// the recipient actually clicks it.
+export async function peekMagicLinkToken(token: string) {
+  const data = await unsealMagicLinkToken(token);
+  return data?.email ?? null;
+}
+
+// Marks the token used so it can never be redeemed again, and returns the
+// signed-in email. Only call this from the actual sign-in action (a button
+// click / POST), never from the initial link GET — see peekMagicLinkToken.
+export async function consumeMagicLinkToken(token: string) {
+  const data = await unsealMagicLinkToken(token);
+  if (!data) return null;
+
+  try {
+    await prisma.magicLinkToken.create({ data: { jti: data.jti } });
+  } catch {
+    // Unique constraint violation — this token was already used.
+    return null;
+  }
+
+  return data.email;
 }
 
 // Basic per-email cooldown so the login-link endpoint can't be used to spam

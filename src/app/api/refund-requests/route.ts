@@ -69,6 +69,7 @@ export async function POST(request: Request) {
     const { error } = await getResend().emails.send({
       from: process.env.ORDER_EMAIL_FROM ?? "orders@orcaaustralia.com",
       to: "support@astryks.com",
+      replyTo: order.customerEmail,
       subject: `New refund request — Order #${order.id.slice(-8).toUpperCase()}`,
       html: renderRefundRequestedAdminEmail({
         orderId: order.id,

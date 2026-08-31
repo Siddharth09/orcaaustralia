@@ -18,7 +18,7 @@ export default async function HomePage() {
           alt="Orca Australia"
           fill
           priority
-          className="object-cover"
+          className="object-cover object-top"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-navy-dark/30 to-navy-dark/50" />
         <div className="relative z-10 text-center text-white">
