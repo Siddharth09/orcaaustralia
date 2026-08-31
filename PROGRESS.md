@@ -1,6 +1,20 @@
 # Orca Australia — Setup Progress
 
-_Last updated: 2026-08-30. I'll keep this file up to date as we go — check here any time for where things stand._
+_Last updated: 2026-08-31. I'll keep this file up to date as we go — check here any time for where things stand._
+
+## 🔧 Sign-in bug fixed, hero photo fixed — 2026-08-31
+
+**Sign-in was genuinely broken, and I found the real cause.** Email security scanners (Gmail/Outlook's "Safe Links"-style protection) automatically open links inside incoming emails to check them for phishing before a person ever clicks — and because sign-in links were single-use, that automatic scan was silently using up the link before you got to click it. So you'd click "sign in," get emailed a link, click it, and it would say "invalid or expired" even though you'd never actually used it. This is a known, common failure mode for single-use email links, and it's on me — I introduced single-use links in the last security audit without accounting for it.
+
+**Fixed**: clicking a sign-in link now opens a page that asks you to confirm ("Sign in as you@email.com?") before actually signing you in. Automated scanners open the page but don't click buttons, so they can no longer burn the link — only a real click does. I tested this by simulating a scanner (fetching the link several times with no browser) and then completing a real sign-in afterward — works correctly. I also confirmed a link genuinely can't be reused a second time after a real sign-in, so the original security fix is intact.
+
+To be clear on the account question: there's no separate "create an account" step to fix — entering your email and getting a sign-in link *is* how an account works here (no password to set up). That's now reliable.
+
+**On `orders@orcaaustralia.com`**: it is a real, correctly configured sending address — your domain is properly verified (SPF/DKIM both pass) and I confirmed emails are actually being delivered to real inboxes, not bouncing. The legitimate concern was different: if a customer ever hit "reply" on one of these emails, it had nowhere real to go. Fixed by adding a reply-to of `support@astryks.com` (your real, monitored inbox) to every customer-facing email — order confirmation, shipping notice, sign-in link, and refund emails. No need to change the sending address itself; "orders@" is standard practice for this kind of email.
+
+**Homepage cover photo**: fixed — it was center-cropping and cutting off both models' faces/hair on wider screens. Re-anchored the crop to the top of the photo instead, verified on both desktop and mobile that both faces are now fully visible.
+
+**General health check**: re-verified admin login gating, the products/product-detail/cart/track-order/contact pages, and confirmed no regressions from these changes (`tsc`, `eslint`, and a production build all clean).
 
 ## 🟢 Stripe switched to LIVE mode — 2026-08-30
 
