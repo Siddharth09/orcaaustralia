@@ -1,9 +1,9 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getProductBySlug } from "@/lib/products";
 import { CATEGORY_LABELS } from "@/lib/constants";
 import { AddToCartForm } from "@/components/AddToCartForm";
+import { ProductGallery } from "@/components/ProductGallery";
 
 export const dynamic = "force-dynamic";
 
@@ -47,31 +47,7 @@ export default async function ProductPage({
   return (
     <div className="mx-auto max-w-6xl px-6 py-12">
       <div className="grid gap-10 lg:grid-cols-2">
-        <div className="space-y-4">
-          <div className="relative aspect-[4/5] w-full overflow-hidden rounded-lg bg-sand">
-            {galleryImages[0] && (
-              <Image
-                src={galleryImages[0]}
-                alt={product.name}
-                fill
-                priority
-                className="object-cover"
-              />
-            )}
-          </div>
-          {galleryImages.length > 1 && (
-            <div className="grid grid-cols-4 gap-3">
-              {galleryImages.slice(1).map((img) => (
-                <div
-                  key={img}
-                  className="relative aspect-square overflow-hidden rounded bg-sand"
-                >
-                  <Image src={img} alt={product.name} fill className="object-cover" />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <ProductGallery images={galleryImages} productName={product.name} />
 
         <div>
           <div className="flex items-center gap-2">
