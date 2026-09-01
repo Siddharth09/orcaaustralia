@@ -12,13 +12,13 @@ export default async function HomePage() {
 
   return (
     <div>
-      <section className="relative flex h-[70vh] min-h-[480px] items-center justify-center overflow-hidden">
+      <section className="relative flex h-[75vh] min-h-[560px] items-center justify-center overflow-hidden">
         <Image
           src={`${BLOB}/cover.jpg`}
           alt="Orca Australia"
           fill
           priority
-          className="object-cover object-top"
+          className="object-cover object-[50%_18%]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-navy-dark/30 to-navy-dark/50" />
         <div className="relative z-10 text-center text-white">
