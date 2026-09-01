@@ -1,6 +1,12 @@
 # Orca Australia — Setup Progress
 
-_Last updated: 2026-08-31. I'll keep this file up to date as we go — check here any time for where things stand._
+_Last updated: 2026-09-01. I'll keep this file up to date as we go — check here any time for where things stand._
+
+## 🖼️ Product photo gallery, Lock-In Pouch thumbnail — 2026-09-01
+
+**Product pages now have a real photo gallery.** Previously only the first photo showed large — the rest were tiny static thumbnails with no way to open them. Now you can click any thumbnail to bring it up large, or hover the main photo for prev/next arrows to click through all of them. Works the same for every product regardless of how many photos it has.
+
+**Lock-In Pouch boxer briefs** now lead with the close-up photo of the actual pouch construction (previously the plain flat-lay front shot) — both on its product-listing card and as the first large photo on its own page — so customers can see what the "Lock-In" pouch actually looks like before reading the description.
 
 ## 🔧 Sign-in bug fixed, hero photo fixed — 2026-08-31
 
